@@ -6,6 +6,7 @@
 #include "ModuleTextures.h"
 #include "ModuleAudio.h"
 #include "ModulePhysics.h"
+#include "ModuleFonts.h"
 
 ModuleSceneIntro::ModuleSceneIntro(Application* app, bool start_enabled) : Module(app, start_enabled)
 {
@@ -41,6 +42,8 @@ bool ModuleSceneIntro::Start()
 	App->audio->PlayMusic("pinball/music.ogg", 3.0f);
 	kicker = App->textures->Load("pinball/kicker.png");
 
+	App->fonts->Load("pinball/font.png", "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz.:;[]0123456789           ",3);
+	
 	sensor = App->physics->CreateRectangleSensor(SCREEN_WIDTH / 2, SCREEN_HEIGHT, SCREEN_WIDTH, 3);
 
 	int map[176] = {
@@ -175,6 +178,7 @@ bool ModuleSceneIntro::Start()
 		110, 180,
 		109, 202
 	};
+
 	App->physics->CreateChain(0, 0, map, 176);
 	App->physics->CreateChain(0, 0, left_platform, 12);
 	App->physics->CreateChain(0, 0, right_platform, 12);
@@ -182,10 +186,10 @@ bool ModuleSceneIntro::Start()
 	frogs.add(App->physics->CreateCircle(150, 280, 20, false));
 	frogs.add(App->physics->CreateCircle(370, 280, 20, false));
 	frogs.add(App->physics->CreateCircle(260, 350, 20, false));
-	//App->physics->CreateCircle(150, 635, 5, false);
-	//right_flippers.add(App->physics->CreateRectangle(320, 635, 90, 10));
-	//left_flippers.add(App->physics->CreateRectangle(200, 635, 90, 10));
-	
+
+	circles.add(App->physics->CreateCircle(508, 502, 10, true));
+	circles.getLast()->data->listener = this;
+
 	return ret;
 }
 
@@ -207,6 +211,17 @@ update_status ModuleSceneIntro::Update()
 	rect.h = 768;
 	
 	App->renderer->Blit(map, 0, 0, &rect);
+
+	if ((lives == 2 || lives==1) && alreadycreated == false) {
+
+		circles.add(App->physics->CreateCircle(508, 502, 10, true));
+		circles.getLast()->data->listener = this;
+		alreadycreated = true;
+	}
+
+	else if (lives == 0) {
+		//LOG("GAME OVER!");
+	}
 
 	if(App->input->GetKey(SDL_SCANCODE_SPACE) == KEY_DOWN)
 	{
@@ -364,14 +379,23 @@ update_status ModuleSceneIntro::Update()
 			App->renderer->DrawLine(ray.x + destination.x, ray.y + destination.y, ray.x + destination.x + normal.x * 25.0f, ray.y + destination.y + normal.y * 25.0f, 100, 255, 100);
 	}
 
+
+	App->fonts->BlitText(0, 0, 0, "HOLA");
 	return UPDATE_CONTINUE;
 }
 
 void ModuleSceneIntro::OnCollision(PhysBody* bodyA, PhysBody* bodyB)
 {
 	int x, y;	
-	//bodyA->body->ApplyForce({ 3,0 }, bodyA->body->GetLocalCenter(), true);
 	
+	if (bodyB == sensor && lives > 0) {
+		alreadycreated = false;
+		lives--;		
+	}
+	if (frogs.findNode(bodyB)) {
+		//bodyA->body->ApplyForce({ 3,3 }, bodyA->body->GetLocalCenter(), false);
+		//bodyA->body->ApplyLinearImpulse({ 0.01,0.01 }, bodyA->body->GetLocalCenter(), true);
+	}
 	/*
 	if(bodyA)
 	{
