@@ -53,15 +53,15 @@ public:
 	// b2ContactListener ---
 	void BeginContact(b2Contact* contact);
 
-	
+	b2RevoluteJoint* flipper_joint_left;
+	b2RevoluteJoint* flipper_joint_right;
 
 private:
 
 	bool debug;
 	b2World* world;
 	b2MouseJoint* mouse_joint;
-	b2RevoluteJoint* flipper_joint_left;
-	b2RevoluteJoint* flipper_joint_right;
+	
 	b2Body* ground;
 
 	int revolute_joint_speed = 12;

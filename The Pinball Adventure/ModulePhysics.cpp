@@ -37,8 +37,8 @@ bool ModulePhysics::Start()
 	ground = world->CreateBody(&bd);	
 
 	// LEFT FLIPPER
-	CreateFlipper(155, 630, 198, 631, 90, 18, 0); //Left == 0 
-	CreateFlipper(360, 630, 318, 631, 90, 18, 1);
+	CreateFlipper(155, 630, 198, 631, 90, 18, 0); // Left == 0 
+	CreateFlipper(360, 630, 318, 635, 90, 18, 1); // Right == 1
 	CreateKicker(507,630,507, 630, 30, 19);
 
 	return true;
@@ -410,28 +410,6 @@ update_status ModulePhysics::PostUpdate()
 		world->DestroyJoint(mouse_joint);
 		mouse_joint = nullptr;
 	}	
-
-	// Flippers' Motors Logic -------------------------------------
-
-	if (App->input->GetKey(SDL_SCANCODE_LEFT)==KEY_REPEAT)
-	{		
-		flipper_joint_left->EnableMotor(true);
-	}
-
-	if (App->input->GetKey(SDL_SCANCODE_LEFT) == KEY_UP)
-	{
-		flipper_joint_left->EnableMotor(false);
-	}
-
-	if (App->input->GetKey(SDL_SCANCODE_RIGHT) == KEY_REPEAT)
-	{
-		flipper_joint_right->EnableMotor(true);
-	}
-
-	if (App->input->GetKey(SDL_SCANCODE_RIGHT) == KEY_UP)
-	{
-		flipper_joint_right->EnableMotor(false);
-	}
 
 	return UPDATE_CONTINUE;
 }

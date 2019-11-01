@@ -25,16 +25,22 @@ bool ModuleSceneIntro::Start()
 
 	App->renderer->camera.x = App->renderer->camera.y = 0;
 
-	ball = App->textures->Load("pinball/ball.png"); 
+	ball = App->textures->Load("pinball/ball.png");
 	box = App->textures->Load("pinball/crate.png");
 	rick = App->textures->Load("pinball/rick_head.png");
 	map = App->textures->Load("pinball/map.png");
-	bonus_fx = App->audio->LoadFx("pinball/bonus.wav");
-	left_flipper=App->textures->Load("pinball/left_flipper.png");
+	left_flipper = App->textures->Load("pinball/left_flipper.png");
 	right_flipper = App->textures->Load("pinball/rigth_flipper.png");
+
+	bonus_fx = App->audio->LoadFx("pinball/bonus.wav");
+	flipper_fx = App->audio->LoadFx("pinball/flipper.wav");
+	start_fx = App->audio->LoadFx("pinball/start.wav");
+
+	App->audio->PlayFx(start_fx, 0);
+	App->audio->PlayMusic("pinball/music.ogg", 3.0f);
 	kicker = App->textures->Load("pinball/kicker.png");
 
-	sensor = App->physics->CreateRectangleSensor(SCREEN_WIDTH / 2, SCREEN_HEIGHT, SCREEN_WIDTH, 50);
+	sensor = App->physics->CreateRectangleSensor(SCREEN_WIDTH / 2, SCREEN_HEIGHT, SCREEN_WIDTH, 3);
 
 	int map[176] = {
 		527, 669,
@@ -127,24 +133,22 @@ bool ModuleSceneIntro::Start()
 		488, 669
 	};
 
-	int left_platform[14] = {
-		77, 466,
-		77, 600,
-		141, 642,
-		160, 642,
-		160, 625,
-		93, 580,
-		93, 478
+	int left_platform[12] = {
+			150, 616,
+			92, 577,
+			91, 472,
+			76, 463,
+			76, 597,
+			140, 640
 	};
 
-	int right_platform[14] = {
-		360, 642,
-		360, 628,
-		427, 577,
-		427, 476,
-		441, 464,
-		441, 599,
-		378, 642
+	int right_platform[12] = {
+		373, 644,
+		441, 601,
+		441, 466,
+		431, 475,
+		431, 581,
+		365, 625
 	};
 
 	int top_platform[42] = {
@@ -170,14 +174,13 @@ bool ModuleSceneIntro::Start()
 		110, 180,
 		109, 202
 	};
-	//ricks.add(App->physics->CreateChain(0, 0, rick_head, 176));
 	App->physics->CreateChain(0, 0, map, 176);
-	//App->physics->CreateChain(0, 0, left_platform, 14);
-	//App->physics->CreateChain(0, 0, right_platform, 14);
+	App->physics->CreateChain(0, 0, left_platform, 12);
+	App->physics->CreateChain(0, 0, right_platform, 12);
 	App->physics->CreateChain(0, 0, top_platform, 42);
 	//App->physics->CreateCircle(150, 635, 5, false);
 	//right_flippers.add(App->physics->CreateRectangle(320, 635, 90, 10));
-//	left_flippers.add(App->physics->CreateRectangle(200, 635, 90, 10));
+	//left_flippers.add(App->physics->CreateRectangle(200, 635, 90, 10));
 	
 	return ret;
 }
@@ -223,6 +226,31 @@ update_status ModuleSceneIntro::Update()
 	{
 		// Pivot 0, 0
 	
+	}
+	// Flippers' Motors Logic -------------------------------------
+
+	if (App->input->GetKey(SDL_SCANCODE_LEFT) == KEY_DOWN || App->input->GetKey(SDL_SCANCODE_RIGHT) == KEY_DOWN)
+		App->audio->PlayFx(App->scene_intro->flipper_fx, 0);
+
+	if (App->input->GetKey(SDL_SCANCODE_LEFT) == KEY_REPEAT)
+	{
+
+		App->physics->flipper_joint_left->EnableMotor(true);
+	}
+
+	if (App->input->GetKey(SDL_SCANCODE_LEFT) == KEY_UP)
+	{
+		App->physics->flipper_joint_left->EnableMotor(false);
+	}
+
+	if (App->input->GetKey(SDL_SCANCODE_RIGHT) == KEY_REPEAT)
+	{
+		App->physics->flipper_joint_right->EnableMotor(true);
+	}
+
+	if (App->input->GetKey(SDL_SCANCODE_RIGHT) == KEY_UP)
+	{
+		App->physics->flipper_joint_right->EnableMotor(false);
 	}
 
 	// Prepare for raycast ------------------------------------------------------
@@ -315,9 +343,8 @@ update_status ModuleSceneIntro::Update()
 
 void ModuleSceneIntro::OnCollision(PhysBody* bodyA, PhysBody* bodyB)
 {
-	int x, y;
-
-	App->audio->PlayFx(bonus_fx);
+	int x, y;	
+	//bodyA->body->ApplyForce({ 3,0 }, bodyA->body->GetLocalCenter(), true);
 
 	/*
 	if(bodyA)

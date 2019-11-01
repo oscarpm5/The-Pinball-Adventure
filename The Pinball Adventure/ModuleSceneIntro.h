@@ -36,6 +36,8 @@ public:
 	SDL_Texture* right_flipper;
 	SDL_Texture* kicker;
 	uint bonus_fx;
+	uint flipper_fx;
+	uint start_fx;
 	p2Point<int> ray;
 	bool ray_on;
 };
