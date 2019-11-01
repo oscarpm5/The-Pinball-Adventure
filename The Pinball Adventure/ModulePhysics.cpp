@@ -129,7 +129,7 @@ PhysBody* ModulePhysics::CreateFlipper(int x, int y, int x1, int y1, int width, 
 	return pbody;
 }
 
-PhysBody* ModulePhysics::CreateCircle(int x, int y, int radius, bool dynamic)
+PhysBody* ModulePhysics::CreateCircle(int x, int y, int radius, bool dynamic,int restitution)
 {
 	b2BodyDef body;
 	if(dynamic)
@@ -137,7 +137,6 @@ PhysBody* ModulePhysics::CreateCircle(int x, int y, int radius, bool dynamic)
 	else
 		body.type = b2_staticBody;
 	body.position.Set(PIXEL_TO_METERS(x), PIXEL_TO_METERS(y));
-
 	b2Body* b = world->CreateBody(&body);
 
 	b2CircleShape shape;
@@ -145,7 +144,10 @@ PhysBody* ModulePhysics::CreateCircle(int x, int y, int radius, bool dynamic)
 	b2FixtureDef fixture;
 	fixture.shape = &shape;
 	fixture.density = 0.01f;
-
+	if (restitution!=-1)
+	{
+		fixture.restitution = restitution;//restitution value can range between 0 and 1 in normal conditions. It determines the bounciness
+	}
 	b->CreateFixture(&fixture);
 
 	PhysBody* pbody = new PhysBody();
@@ -156,7 +158,7 @@ PhysBody* ModulePhysics::CreateCircle(int x, int y, int radius, bool dynamic)
 	return pbody;
 }
 
-PhysBody* ModulePhysics::CreateRectangle(int x, int y, int width, int height, bool dynamic, float angle)
+PhysBody* ModulePhysics::CreateRectangle(int x, int y, int width, int height, bool dynamic, float angle,bool sensor)
 {
 	b2BodyDef body;
 	body.angle = angle;	
@@ -175,7 +177,7 @@ PhysBody* ModulePhysics::CreateRectangle(int x, int y, int width, int height, bo
 	b2FixtureDef fixture;
 	fixture.shape = &box;
 	fixture.density = 1.0f;
-	fixture.isSensor = true;
+	fixture.isSensor = sensor;
 
 	b->CreateFixture(&fixture);
 
@@ -508,4 +510,10 @@ void ModulePhysics::BeginContact(b2Contact* contact)
 
 	if(physB && physB->listener != NULL)
 		physB->listener->OnCollision(physB, physA);
+
+	if (physB && physB->listener != NULL && App->scene_intro->frogs.findNode(physA))
+	{
+		App->scene_intro->score += 100;
+		physB->listener->OnCollision(physB, physA);
+	}
 }

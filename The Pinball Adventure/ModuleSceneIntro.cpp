@@ -43,8 +43,8 @@ bool ModuleSceneIntro::Start()
 	App->audio->PlayMusic("pinball/music.ogg", 3.0f);
 	kicker = App->textures->Load("pinball/kicker.png");
 
-	App->fonts->Load("pinball/font.png", "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz.:;[]0123456789           ",3);
-	
+	App->fonts->Load("pinball/font.png", "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz.:;[]0123456789           ", 3);
+
 	sensor = App->physics->CreateRectangleSensor(SCREEN_WIDTH / 2, SCREEN_HEIGHT, SCREEN_WIDTH, 3);
 
 	int map[176] = {
@@ -201,20 +201,20 @@ bool ModuleSceneIntro::Start()
 	App->physics->CreateChain(0, 0, left_bumper, 8);
 	App->physics->CreateChain(0, 0, right_bumper, 8);
 
-	frogs.add(App->physics->CreateCircle(150, 280, 20, false));
-	frogs.add(App->physics->CreateCircle(370, 280, 20, false));
-	frogs.add(App->physics->CreateCircle(260, 350, 20, false));
+	frogs.add(App->physics->CreateCircle(150, 280, 20, false,1.75f));
+	frogs.add(App->physics->CreateCircle(370, 280, 20, false, 1.75f));
+	frogs.add(App->physics->CreateCircle(260, 350, 20, false, 1.75f));
 
 	circles.add(App->physics->CreateCircle(508, 502, 10, true));
 	circles.getLast()->data->listener = this;
 
-	red_sensors.add(App->physics->CreateRectangle(58,459,35,15,true, 0.6));
-	red_sensors.add(App->physics->CreateRectangle(460, 459, 35, 15, true, -0.6));
-	red_sensors.add(App->physics->CreateRectangle(140, 225, 35, 15, true));
-	red_sensors.add(App->physics->CreateRectangle(180, 225, 35, 15, true));
-	red_sensors.add(App->physics->CreateRectangle(340, 225, 35, 15, true));
-	red_sensors.add(App->physics->CreateRectangle(380, 225, 35, 15, true));
-	
+	red_sensors.add(App->physics->CreateRectangle(58, 459, 35, 15, true, 0.6,true));
+	red_sensors.add(App->physics->CreateRectangle(460, 459, 35, 15, true, -0.6, true));
+	red_sensors.add(App->physics->CreateRectangle(140, 225, 35, 15, true,0 , true));
+	red_sensors.add(App->physics->CreateRectangle(180, 225, 35, 15, true, 0, true));
+	red_sensors.add(App->physics->CreateRectangle(340, 225, 35, 15, true, 0, true));
+	red_sensors.add(App->physics->CreateRectangle(380, 225, 35, 15, true, 0, true));
+
 	App->physics->CreateRectangle(144, 535, 80, 5, true, 1.06f);
 	App->physics->CreateRectangle(376, 535, 80, 5, true, 2.06f);
 
@@ -237,13 +237,13 @@ update_status ModuleSceneIntro::Update()
 	rect.y = 0;
 	rect.w = 768;
 	rect.h = 768;
-	
+
 	App->renderer->Blit(map, 0, 0, &rect);
 
-	if ((lives == 2 || lives==1) && alreadycreated == false) {
+	if ((lives == 2 || lives == 1) && alreadycreated == false) {
 
 		circles.add(App->physics->CreateCircle(508, 502, 10, true));
-		circles.getLast()->data->listener = this;		
+		circles.getLast()->data->listener = this;
 		alreadycreated = true;
 	}
 
@@ -251,25 +251,25 @@ update_status ModuleSceneIntro::Update()
 		//LOG("GAME OVER!");
 	}
 
-	if(App->input->GetKey(SDL_SCANCODE_SPACE) == KEY_DOWN)
+	if (App->input->GetKey(SDL_SCANCODE_SPACE) == KEY_DOWN)
 	{
 		ray_on = !ray_on;
 		ray.x = App->input->GetMouseX();
 		ray.y = App->input->GetMouseY();
 	}
 
-	if(App->input->GetKey(SDL_SCANCODE_1) == KEY_DOWN)
+	if (App->input->GetKey(SDL_SCANCODE_1) == KEY_DOWN)
 	{
 		circles.add(App->physics->CreateCircle(App->input->GetMouseX(), App->input->GetMouseY(), 10, true));
 		circles.getLast()->data->listener = this;
 	}
 
-	if(App->input->GetKey(SDL_SCANCODE_2) == KEY_DOWN)
+	if (App->input->GetKey(SDL_SCANCODE_2) == KEY_DOWN)
 	{
 		boxes.add(App->physics->CreateRectangle(App->input->GetMouseX(), App->input->GetMouseY(), 100, 50, true));
 	}
 
-	
+
 	// Flippers' Motors Logic -------------------------------------
 
 	if (App->input->GetKey(SDL_SCANCODE_LEFT) == KEY_DOWN || App->input->GetKey(SDL_SCANCODE_RIGHT) == KEY_DOWN)
@@ -308,7 +308,7 @@ update_status ModuleSceneIntro::Update()
 	}
 
 	// Prepare for raycast ------------------------------------------------------
-	
+
 	iPoint mouse;
 	mouse.x = App->input->GetMouseX();
 	mouse.y = App->input->GetMouseY();
@@ -319,12 +319,12 @@ update_status ModuleSceneIntro::Update()
 	// All draw functions ------------------------------------------------------
 	p2List_item<PhysBody*>* c = frogs.getFirst();
 
-	while(c != NULL)
+	while (c != NULL)
 	{
 		int x, y;
 		c->data->GetPosition(x, y);
-		
-		App->renderer->Blit(frog, x-15, y, NULL, 1.0f, c->data->GetRotation());
+
+		App->renderer->Blit(frog, x - 15, y, NULL, 1.0f, c->data->GetRotation());
 		c = c->next;
 	}
 
@@ -341,15 +341,15 @@ update_status ModuleSceneIntro::Update()
 
 	c = left_flippers.getFirst();
 
-	while(c != NULL)
+	while (c != NULL)
 	{
 		int x, y;
 		c->data->GetPosition(x, y);
-		App->renderer->Blit(left_flipper, x-8, y-4, NULL, 1.0f, c->data->GetRotation());
-		if(ray_on)
+		App->renderer->Blit(left_flipper, x - 8, y - 4, NULL, 1.0f, c->data->GetRotation());
+		if (ray_on)
 		{
 			int hit = c->data->RayCast(ray.x, ray.y, mouse.x, mouse.y, normal.x, normal.y);
-			if(hit >= 0)
+			if (hit >= 0)
 				ray_hit = hit;
 		}
 		c = c->next;
@@ -361,7 +361,7 @@ update_status ModuleSceneIntro::Update()
 	{
 		int x, y;
 		c->data->GetPosition(x, y);
-		App->renderer->Blit(right_flipper, x-4, y-4, NULL, 1.0f, c->data->GetRotation());
+		App->renderer->Blit(right_flipper, x - 4, y - 4, NULL, 1.0f, c->data->GetRotation());
 		if (ray_on)
 		{
 			int hit = c->data->RayCast(ray.x, ray.y, mouse.x, mouse.y, normal.x, normal.y);
@@ -369,7 +369,7 @@ update_status ModuleSceneIntro::Update()
 				ray_hit = hit;
 		}
 		c = c->next;
-	}	
+	}
 
 	c = kickers.getFirst();
 	while (c != NULL)
@@ -392,47 +392,31 @@ update_status ModuleSceneIntro::Update()
 	}
 
 	// ray -----------------
-	if(ray_on == true)
+	if (ray_on == true)
 	{
-		fVector destination(mouse.x-ray.x, mouse.y-ray.y);
+		fVector destination(mouse.x - ray.x, mouse.y - ray.y);
 		destination.Normalize();
 		destination *= ray_hit;
 
 		App->renderer->DrawLine(ray.x, ray.y, ray.x + destination.x, ray.y + destination.y, 255, 255, 255);
 
-		if(normal.x != 0.0f)
+		if (normal.x != 0.0f)
 			App->renderer->DrawLine(ray.x + destination.x, ray.y + destination.y, ray.x + destination.x + normal.x * 25.0f, ray.y + destination.y + normal.y * 25.0f, 100, 255, 100);
 	}
 
 	BlitScore();
-	
+
 	return UPDATE_CONTINUE;
 }
 
 void ModuleSceneIntro::OnCollision(PhysBody* bodyA, PhysBody* bodyB)
 {
-	int x, y;	
-	
+	int x, y;
+
 	if (bodyB == sensor && lives > 0) {
 		alreadycreated = false;
-		lives--;		
+		lives--;
 	}
-	if (frogs.findNode(bodyB)) {
-		//bodyA->body->ApplyForce({ 3,3 }, bodyA->body->GetLocalCenter(), false);
-		//bodyA->body->ApplyLinearImpulse({ 0.01,0.01 }, bodyA->body->GetLocalCenter(), true);
-	}
-	/*
-	if(bodyA)
-	{
-		bodyA->GetPosition(x, y);
-		App->renderer->DrawCircle(x, y, 50, 100, 100, 100);
-	}
-
-	if(bodyB)
-	{
-		bodyB->GetPosition(x, y);
-		App->renderer->DrawCircle(x, y, 50, 100, 100, 100);
-	}*/
 }
 
 void ModuleSceneIntro::BlitScore() {
@@ -448,9 +432,9 @@ void ModuleSceneIntro::BlitScore() {
 	App->fonts->BlitText(550, 339, 0, "Score", 1.8f);
 	//App->fonts->BlitText(550, 360, 0, );
 	sprintf_s(score_char, 10, "%d", score);
-	App->fonts->BlitText(550, 360, 0,score_char, 1.8f);
+	App->fonts->BlitText(550, 360, 0, score_char, 1.8f);
 
-	
+
 
 
 }

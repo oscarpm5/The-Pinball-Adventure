@@ -42,9 +42,9 @@ public:
 	update_status PostUpdate();
 	bool CleanUp();
 
-	PhysBody* CreateCircle(int x, int y, int radius, bool dynamic);
-	PhysBody* CreateRectangle(int x, int y, int width, int height, bool dynamic, float angle = 0.0f);
-	PhysBody* CreateRectangleSensor(int x, int y, int width, int height);
+	PhysBody* CreateCircle(int x, int y, int radius, bool dynamic, int restitution=-1);
+	PhysBody* CreateRectangle(int x, int y, int width, int height, bool dynamic, float angle = 0.0f, bool sensor = false);
+	PhysBody* CreateRectangleSensor(int x, int y, int width, int height);//TODO delete this if we use the sensor code in create rectangle
 	PhysBody* CreateChain(int x, int y, int* points, int size);
 	PhysBody* CreateFlipper(int x1, int y1, int x2, int y, int width, int height, int left_right);
 	PhysBody* CreateKicker(int pivotX, int pivotY, int x1, int y1, int width, int height);
