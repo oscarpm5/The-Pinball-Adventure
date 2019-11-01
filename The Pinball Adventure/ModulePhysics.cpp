@@ -39,7 +39,7 @@ bool ModulePhysics::Start()
 	// LEFT FLIPPER
 	CreateFlipper(155, 630, 198, 631, 90, 18, 0); // Left == 0 
 	CreateFlipper(360, 630, 318, 635, 90, 18, 1); // Right == 1
-	CreateKicker(507,630,507, 630, 30, 19);
+	CreateKicker(507,660,507, 660, 30, 19);
 
 	return true;
 }
@@ -282,14 +282,15 @@ PhysBody* ModulePhysics::CreateKicker(int pivotX, int pivotY, int x1, int y1, in
 	
 	//creation of the prismatic joint
 	b2PrismaticJointDef jointDef;
-	b2Vec2 worldAxis(1.0f, 0.0f);
+	b2Vec2 worldAxis(0.0f, 1.0f);
 	jointDef.Initialize(ball_joint, kicker_body, ball_joint->GetWorldCenter(), worldAxis);
-	jointDef.lowerTranslation = -5.0f;
-	jointDef.upperTranslation =5.0f;
+	jointDef.lowerTranslation = -1.5f;
+	jointDef.upperTranslation =0.0f;
 	jointDef.enableLimit = true;
-	jointDef.maxMotorForce = 1.0f;
+	jointDef.maxMotorForce = 30.0f;
 	jointDef.motorSpeed = 0.0f;
-	jointDef.enableMotor = true;
+	jointDef.enableMotor = true;	kicker_joint = (b2PrismaticJoint*)world->CreateJoint(&jointDef);
+
 	App->scene_intro->kickers.add(pbody);
 
 	return pbody;

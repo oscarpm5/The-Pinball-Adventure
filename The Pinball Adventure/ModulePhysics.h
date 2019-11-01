@@ -55,6 +55,7 @@ public:
 
 	b2RevoluteJoint* flipper_joint_left;
 	b2RevoluteJoint* flipper_joint_right;
+	b2PrismaticJoint* kicker_joint;
 
 private:
 

@@ -253,6 +253,17 @@ update_status ModuleSceneIntro::Update()
 		App->physics->flipper_joint_right->EnableMotor(false);
 	}
 
+	//kickers Motors Logic-----------------------------------------
+
+	if (App->input->GetKey(SDL_SCANCODE_DOWN) == KEY_REPEAT)
+	{
+		App->physics->kicker_joint->SetMotorSpeed(2);
+	}
+	else
+	{
+		App->physics->kicker_joint->SetMotorSpeed(-15);
+	}
+
 	// Prepare for raycast ------------------------------------------------------
 	
 	iPoint mouse;
