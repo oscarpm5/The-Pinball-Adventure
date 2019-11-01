@@ -43,11 +43,12 @@ public:
 	bool CleanUp();
 
 	PhysBody* CreateCircle(int x, int y, int radius, bool dynamic);
-	PhysBody* CreateRectangle(int x, int y, int width, int height);
+	PhysBody* CreateRectangle(int x, int y, int width, int height, bool dynamic, float angle = 0.0f);
 	PhysBody* CreateRectangleSensor(int x, int y, int width, int height);
 	PhysBody* CreateChain(int x, int y, int* points, int size);
 	PhysBody* CreateFlipper(int x1, int y1, int x2, int y, int width, int height, int left_right);
 	PhysBody* CreateKicker(int pivotX, int pivotY, int x1, int y1, int width, int height);
+	//PhysBody* CreateBumper(int pivotX, int pivotY, int x1, int y1, int width, int height);
 
 
 	// b2ContactListener ---

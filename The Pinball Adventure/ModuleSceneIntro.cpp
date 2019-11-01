@@ -33,6 +33,7 @@ bool ModuleSceneIntro::Start()
 	left_flipper = App->textures->Load("pinball/left_flipper.png");
 	right_flipper = App->textures->Load("pinball/rigth_flipper.png");
 	frog = App->textures->Load("pinball/frog.png");
+	red_sensor = App->textures->Load("pinball/red_sensor.png");
 
 	bonus_fx = App->audio->LoadFx("pinball/bonus.wav");
 	flipper_fx = App->audio->LoadFx("pinball/flipper.wav");
@@ -179,16 +180,43 @@ bool ModuleSceneIntro::Start()
 		109, 202
 	};
 
+	int left_bumper[8] = {
+		119, 492,
+		118, 557,
+		165, 596,
+		164, 572
+	};
+
+	int right_bumper[8] = {
+	400, 491,
+	354, 576,
+	355, 594,
+	399, 556
+	};
+
 	App->physics->CreateChain(0, 0, map, 176);
 	App->physics->CreateChain(0, 0, left_platform, 12);
 	App->physics->CreateChain(0, 0, right_platform, 12);
 	App->physics->CreateChain(0, 0, top_platform, 42);
+	App->physics->CreateChain(0, 0, left_bumper, 8);
+	App->physics->CreateChain(0, 0, right_bumper, 8);
+
 	frogs.add(App->physics->CreateCircle(150, 280, 20, false));
 	frogs.add(App->physics->CreateCircle(370, 280, 20, false));
 	frogs.add(App->physics->CreateCircle(260, 350, 20, false));
 
 	circles.add(App->physics->CreateCircle(508, 502, 10, true));
 	circles.getLast()->data->listener = this;
+
+	red_sensors.add(App->physics->CreateRectangle(58,459,35,15,true, 0.6));
+	red_sensors.add(App->physics->CreateRectangle(460, 459, 35, 15, true, -0.6));
+	red_sensors.add(App->physics->CreateRectangle(140, 225, 35, 15, true));
+	red_sensors.add(App->physics->CreateRectangle(180, 225, 35, 15, true));
+	red_sensors.add(App->physics->CreateRectangle(340, 225, 35, 15, true));
+	red_sensors.add(App->physics->CreateRectangle(380, 225, 35, 15, true));
+	
+	App->physics->CreateRectangle(144, 535, 80, 5, true, 1.06f);
+	App->physics->CreateRectangle(376, 535, 80, 5, true, 2.06f);
 
 	return ret;
 }
@@ -215,7 +243,7 @@ update_status ModuleSceneIntro::Update()
 	if ((lives == 2 || lives==1) && alreadycreated == false) {
 
 		circles.add(App->physics->CreateCircle(508, 502, 10, true));
-		circles.getLast()->data->listener = this;
+		circles.getLast()->data->listener = this;		
 		alreadycreated = true;
 	}
 
@@ -238,14 +266,10 @@ update_status ModuleSceneIntro::Update()
 
 	if(App->input->GetKey(SDL_SCANCODE_2) == KEY_DOWN)
 	{
-		boxes.add(App->physics->CreateRectangle(App->input->GetMouseX(), App->input->GetMouseY(), 100, 50));
+		boxes.add(App->physics->CreateRectangle(App->input->GetMouseX(), App->input->GetMouseY(), 100, 50, true));
 	}
 
-	if(App->input->GetKey(SDL_SCANCODE_3) == KEY_DOWN)
-	{
-		// Pivot 0, 0
 	
-	}
 	// Flippers' Motors Logic -------------------------------------
 
 	if (App->input->GetKey(SDL_SCANCODE_LEFT) == KEY_DOWN || App->input->GetKey(SDL_SCANCODE_RIGHT) == KEY_DOWN)
@@ -345,16 +369,7 @@ update_status ModuleSceneIntro::Update()
 				ray_hit = hit;
 		}
 		c = c->next;
-	}
-	c = ricks.getFirst();
-
-	while(c != NULL)
-	{
-		int x, y;
-		c->data->GetPosition(x, y);
-		App->renderer->Blit(rick, x, y, NULL, 1.0f, c->data->GetRotation());
-		c = c->next;
-	}
+	}	
 
 	c = kickers.getFirst();
 	while (c != NULL)
@@ -363,6 +378,16 @@ update_status ModuleSceneIntro::Update()
 		c->data->GetPosition(x, y);
 
 		App->renderer->Blit(kicker, x, y, NULL, 1.0f, c->data->GetRotation());
+		c = c->next;
+	}
+
+	c = red_sensors.getFirst();
+	while (c != NULL)
+	{
+		int x, y;
+		c->data->GetPosition(x, y);
+
+		App->renderer->Blit(red_sensor, x, y, NULL, 1.0f, c->data->GetRotation());
 		c = c->next;
 	}
 
@@ -379,8 +404,8 @@ update_status ModuleSceneIntro::Update()
 			App->renderer->DrawLine(ray.x + destination.x, ray.y + destination.y, ray.x + destination.x + normal.x * 25.0f, ray.y + destination.y + normal.y * 25.0f, 100, 255, 100);
 	}
 
-
-	App->fonts->BlitText(0, 0, 0, "HOLA");
+	BlitScore();
+	
 	return UPDATE_CONTINUE;
 }
 
@@ -408,4 +433,24 @@ void ModuleSceneIntro::OnCollision(PhysBody* bodyA, PhysBody* bodyB)
 		bodyB->GetPosition(x, y);
 		App->renderer->DrawCircle(x, y, 50, 100, 100, 100);
 	}*/
+}
+
+void ModuleSceneIntro::BlitScore() {
+
+	App->fonts->BlitText(555, 260, 0, "Pause", 1.8f);
+	App->fonts->BlitText(640, 260, 0, "SFX", 1.8f);
+	App->fonts->BlitText(695, 260, 0, "Music", 1.8f);
+
+	App->fonts->BlitText(550, 298, 0, "Lives", 1.8f);
+	sprintf_s(lives_char, 10, "%d", lives);
+	App->fonts->BlitText(550, 315, 0, lives_char, 1.8f);
+
+	App->fonts->BlitText(550, 339, 0, "Score", 1.8f);
+	//App->fonts->BlitText(550, 360, 0, );
+	sprintf_s(score_char, 10, "%d", score);
+	App->fonts->BlitText(550, 360, 0,score_char, 1.8f);
+
+	
+
+
 }
