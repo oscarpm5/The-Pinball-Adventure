@@ -30,6 +30,8 @@ bool ModuleSceneIntro::Start()
 	rick = App->textures->Load("pinball/rick_head.png");
 	map = App->textures->Load("pinball/map.png");
 	bonus_fx = App->audio->LoadFx("pinball/bonus.wav");
+	left_flipper=App->textures->Load("pinball/left_flipper.png");
+	right_flipper = App->textures->Load("pinball/rigth_flipper.png");
 
 	sensor = App->physics->CreateRectangleSensor(SCREEN_WIDTH / 2, SCREEN_HEIGHT, SCREEN_WIDTH, 50);
 
@@ -169,9 +171,15 @@ bool ModuleSceneIntro::Start()
 	};
 	//ricks.add(App->physics->CreateChain(0, 0, rick_head, 176));
 	App->physics->CreateChain(0, 0, map, 176);
-	App->physics->CreateChain(0, 0, left_platform, 14);
-	App->physics->CreateChain(0, 0, right_platform, 14);
+	//App->physics->CreateChain(0, 0, left_platform, 14);
+	//App->physics->CreateChain(0, 0, right_platform, 14);
 	App->physics->CreateChain(0, 0, top_platform, 42);
+	//App->physics->CreateCircle(150, 635, 5, false);
+	//right_flippers.add(App->physics->CreateRectangle(320, 635, 90, 10));
+//	left_flippers.add(App->physics->CreateRectangle(200, 635, 90, 10));
+	
+	
+	
 
 	return ret;
 }
@@ -204,7 +212,7 @@ update_status ModuleSceneIntro::Update()
 
 	if(App->input->GetKey(SDL_SCANCODE_1) == KEY_DOWN)
 	{
-		circles.add(App->physics->CreateCircle(App->input->GetMouseX(), App->input->GetMouseY(), 10));
+		circles.add(App->physics->CreateCircle(App->input->GetMouseX(), App->input->GetMouseY(), 10, true));
 		circles.getLast()->data->listener = this;
 	}
 
@@ -240,13 +248,13 @@ update_status ModuleSceneIntro::Update()
 		c = c->next;
 	}
 
-	c = boxes.getFirst();
+	c = left_flippers.getFirst();
 
 	while(c != NULL)
 	{
 		int x, y;
 		c->data->GetPosition(x, y);
-		App->renderer->Blit(box, x, y, NULL, 1.0f, c->data->GetRotation());
+		App->renderer->Blit(left_flipper, x-8, y-4, NULL, 1.0f, c->data->GetRotation());
 		if(ray_on)
 		{
 			int hit = c->data->RayCast(ray.x, ray.y, mouse.x, mouse.y, normal.x, normal.y);
@@ -256,6 +264,21 @@ update_status ModuleSceneIntro::Update()
 		c = c->next;
 	}
 
+	c = right_flippers.getFirst();
+
+	while (c != NULL)
+	{
+		int x, y;
+		c->data->GetPosition(x, y);
+		App->renderer->Blit(right_flipper, x-4, y-4, NULL, 1.0f, c->data->GetRotation());
+		if (ray_on)
+		{
+			int hit = c->data->RayCast(ray.x, ray.y, mouse.x, mouse.y, normal.x, normal.y);
+			if (hit >= 0)
+				ray_hit = hit;
+		}
+		c = c->next;
+	}
 	c = ricks.getFirst();
 
 	while(c != NULL)

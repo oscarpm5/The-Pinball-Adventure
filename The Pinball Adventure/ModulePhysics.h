@@ -42,18 +42,27 @@ public:
 	update_status PostUpdate();
 	bool CleanUp();
 
-	PhysBody* CreateCircle(int x, int y, int radius);
+	PhysBody* CreateCircle(int x, int y, int radius, bool dynamic);
 	PhysBody* CreateRectangle(int x, int y, int width, int height);
 	PhysBody* CreateRectangleSensor(int x, int y, int width, int height);
 	PhysBody* CreateChain(int x, int y, int* points, int size);
+	PhysBody* CreateFlipper(int x1, int y1, int x2, int y, int width, int height, int left_right);
 
 	// b2ContactListener ---
 	void BeginContact(b2Contact* contact);
+
+	
 
 private:
 
 	bool debug;
 	b2World* world;
 	b2MouseJoint* mouse_joint;
+	b2RevoluteJoint* flipper_joint_left;
+	b2RevoluteJoint* flipper_joint_right;
 	b2Body* ground;
+
+	int revolute_joint_speed = 12;
+
+	b2RevoluteJointDef jointDef1;
 };

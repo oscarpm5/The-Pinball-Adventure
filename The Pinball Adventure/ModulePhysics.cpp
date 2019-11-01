@@ -34,25 +34,11 @@ bool ModulePhysics::Start()
 
 	// needed to create joints like mouse joint
 	b2BodyDef bd;
-	ground = world->CreateBody(&bd);
-	/*
-	// big static circle as "ground" in the middle of the screen
-	int x = SCREEN_WIDTH / 2;
-	int y = SCREEN_HEIGHT / 1.5f;
-	int diameter = SCREEN_WIDTH / 2;
+	ground = world->CreateBody(&bd);	
 
-	b2BodyDef body;
-	body.type = b2_staticBody;
-	body.position.Set(PIXEL_TO_METERS(x), PIXEL_TO_METERS(y));
-
-	b2Body* big_ball = world->CreateBody(&body);
-
-	b2CircleShape shape;
-	shape.m_radius = PIXEL_TO_METERS(diameter) * 0.5f;
-
-	b2FixtureDef fixture;
-	fixture.shape = &shape;
-	big_ball->CreateFixture(&fixture);*/
+	// LEFT FLIPPER
+	CreateFlipper(155, 630, 198, 631, 90, 18, 0); //Left == 0 
+	CreateFlipper(360, 630, 318, 631, 90, 18, 1);
 
 	return true;
 }
@@ -76,10 +62,79 @@ update_status ModulePhysics::PreUpdate()
 	return UPDATE_CONTINUE;
 }
 
-PhysBody* ModulePhysics::CreateCircle(int x, int y, int radius)
+PhysBody* ModulePhysics::CreateFlipper(int x, int y, int x1, int y1, int width, int height, int left_right)
+{
+	// Creation of the static ball (needed for joint)
+	b2BodyDef ball;
+	ball.type = b2_staticBody;
+	ball.position.Set(PIXEL_TO_METERS(x), PIXEL_TO_METERS(y));
+
+	b2Body* ball_joint = world->CreateBody(&ball);
+
+	b2CircleShape shape;
+	shape.m_radius = PIXEL_TO_METERS(5) * 0.5f;
+
+	b2FixtureDef fixture;
+	fixture.shape = &shape;
+	ball_joint->CreateFixture(&fixture);
+
+	// Creation of the flipper body
+
+	b2BodyDef flipper;
+	flipper.type = b2_dynamicBody;
+	flipper.position.Set(PIXEL_TO_METERS(x1), PIXEL_TO_METERS(y1));
+
+	b2Body* flipper_body = world->CreateBody(&flipper);
+	b2PolygonShape flipper_1;
+	flipper_1.SetAsBox(PIXEL_TO_METERS(width) * 0.5f, PIXEL_TO_METERS(height) * 0.5f);
+
+	b2FixtureDef fixture1;
+	fixture1.shape = &flipper_1;
+	fixture1.density = 1.0f;
+
+	flipper_body->CreateFixture(&fixture1);
+
+	PhysBody* pbody = new PhysBody();
+	pbody->body = flipper_body;
+	flipper_body->SetUserData(pbody);
+	pbody->width = 90 * 0.5f;
+	pbody->height = 10 * 0.5f;
+
+	// Creation of the revolution joint 
+	
+	jointDef1.Initialize(ball_joint, flipper_body, ball_joint->GetWorldCenter());
+	jointDef1.enableMotor = false;
+
+	if(left_right==0)
+		jointDef1.motorSpeed = -revolute_joint_speed;
+	if(left_right==1)
+		jointDef1.motorSpeed = revolute_joint_speed;
+
+	jointDef1.maxMotorTorque = 1000;
+	jointDef1.enableLimit = true;
+	jointDef1.lowerAngle = -0.523599;
+	jointDef1.upperAngle = 0.523599;
+
+	if (left_right == 0) {
+		App->scene_intro->left_flippers.add(pbody);
+		flipper_joint_left = (b2RevoluteJoint*)world->CreateJoint(&jointDef1);
+	}
+	
+	if (left_right == 1) {
+		App->scene_intro->right_flippers.add(pbody);
+		flipper_joint_right = (b2RevoluteJoint*)world->CreateJoint(&jointDef1);
+	}	
+	
+	return pbody;
+}
+
+PhysBody* ModulePhysics::CreateCircle(int x, int y, int radius, bool dynamic)
 {
 	b2BodyDef body;
+	if(dynamic)
 	body.type = b2_dynamicBody;
+	else
+		body.type = b2_staticBody;
 	body.position.Set(PIXEL_TO_METERS(x), PIXEL_TO_METERS(y));
 
 	b2Body* b = world->CreateBody(&body);
@@ -88,7 +143,7 @@ PhysBody* ModulePhysics::CreateCircle(int x, int y, int radius)
 	shape.m_radius = PIXEL_TO_METERS(radius);
 	b2FixtureDef fixture;
 	fixture.shape = &shape;
-	fixture.density = 1.0f;
+	fixture.density = 0.01f;
 
 	b->CreateFixture(&fixture);
 
@@ -285,6 +340,8 @@ update_status ModulePhysics::PostUpdate()
 		}
 	}
 
+	// Joint Debug on ball Logic ---------------------------
+
 	if (App->input->GetMouseButton(SDL_BUTTON_LEFT) == KEY_REPEAT && mouse_joint != nullptr)
 	{
 		mouse_joint->SetTarget({ PIXEL_TO_METERS(App->input->GetMouseX()), PIXEL_TO_METERS(App->input->GetMouseY()) });
@@ -298,6 +355,28 @@ update_status ModulePhysics::PostUpdate()
 		world->DestroyJoint(mouse_joint);
 		mouse_joint = nullptr;
 	}	
+
+	// Flippers' Motors Logic -------------------------------------
+
+	if (App->input->GetKey(SDL_SCANCODE_LEFT)==KEY_REPEAT)
+	{		
+		flipper_joint_left->EnableMotor(true);
+	}
+
+	if (App->input->GetKey(SDL_SCANCODE_LEFT) == KEY_UP)
+	{
+		flipper_joint_left->EnableMotor(false);
+	}
+
+	if (App->input->GetKey(SDL_SCANCODE_RIGHT) == KEY_REPEAT)
+	{
+		flipper_joint_right->EnableMotor(true);
+	}
+
+	if (App->input->GetKey(SDL_SCANCODE_RIGHT) == KEY_UP)
+	{
+		flipper_joint_right->EnableMotor(false);
+	}
 
 	return UPDATE_CONTINUE;
 }
