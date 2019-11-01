@@ -32,6 +32,7 @@ bool ModuleSceneIntro::Start()
 	bonus_fx = App->audio->LoadFx("pinball/bonus.wav");
 	left_flipper=App->textures->Load("pinball/left_flipper.png");
 	right_flipper = App->textures->Load("pinball/rigth_flipper.png");
+	kicker = App->textures->Load("pinball/kicker.png");
 
 	sensor = App->physics->CreateRectangleSensor(SCREEN_WIDTH / 2, SCREEN_HEIGHT, SCREEN_WIDTH, 50);
 
@@ -178,9 +179,6 @@ bool ModuleSceneIntro::Start()
 	//right_flippers.add(App->physics->CreateRectangle(320, 635, 90, 10));
 //	left_flippers.add(App->physics->CreateRectangle(200, 635, 90, 10));
 	
-	
-	
-
 	return ret;
 }
 
@@ -286,6 +284,16 @@ update_status ModuleSceneIntro::Update()
 		int x, y;
 		c->data->GetPosition(x, y);
 		App->renderer->Blit(rick, x, y, NULL, 1.0f, c->data->GetRotation());
+		c = c->next;
+	}
+
+	c = kickers.getFirst();
+	while (c != NULL)
+	{
+		int x, y;
+		c->data->GetPosition(x, y);
+
+		App->renderer->Blit(kicker, x, y, NULL, 1.0f, c->data->GetRotation());
 		c = c->next;
 	}
 

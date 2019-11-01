@@ -47,6 +47,8 @@ public:
 	PhysBody* CreateRectangleSensor(int x, int y, int width, int height);
 	PhysBody* CreateChain(int x, int y, int* points, int size);
 	PhysBody* CreateFlipper(int x1, int y1, int x2, int y, int width, int height, int left_right);
+	PhysBody* CreateKicker(int pivotX, int pivotY, int x1, int y1, int width, int height);
+
 
 	// b2ContactListener ---
 	void BeginContact(b2Contact* contact);

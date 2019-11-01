@@ -39,6 +39,7 @@ bool ModulePhysics::Start()
 	// LEFT FLIPPER
 	CreateFlipper(155, 630, 198, 631, 90, 18, 0); //Left == 0 
 	CreateFlipper(360, 630, 318, 631, 90, 18, 1);
+	CreateKicker(507,630,507, 630, 30, 19);
 
 	return true;
 }
@@ -239,6 +240,60 @@ PhysBody* ModulePhysics::CreateChain(int x, int y, int* points, int size)
 	pbody->width = pbody->height = 0;
 
 	return pbody;
+}
+
+PhysBody* ModulePhysics::CreateKicker(int pivotX, int pivotY, int x1, int y1, int width, int height)
+{
+	// Creation of the static ball (needed for joint)
+	b2BodyDef ball;
+	ball.type = b2_staticBody;
+	ball.position.Set(PIXEL_TO_METERS(pivotX), PIXEL_TO_METERS(pivotY));
+
+	b2Body* ball_joint = world->CreateBody(&ball);
+
+	b2CircleShape shape;
+	shape.m_radius = PIXEL_TO_METERS(5) * 0.5f;
+
+	b2FixtureDef fixture;
+	fixture.shape = &shape;
+	ball_joint->CreateFixture(&fixture);
+
+	//Creation of the kicker
+	b2BodyDef kicker;
+	kicker.type = b2_dynamicBody;//TODO CHANGE THIS TO DYNAMIC
+	kicker.position.Set(PIXEL_TO_METERS(x1), PIXEL_TO_METERS(y1));
+
+	b2Body* kicker_body = world->CreateBody(&kicker);
+	b2PolygonShape kicker_1;
+	kicker_1.SetAsBox(PIXEL_TO_METERS(width) * 0.5f, PIXEL_TO_METERS(height) * 0.5f);
+
+	b2FixtureDef fixture1;
+	fixture1.shape = &kicker_1;
+	fixture1.density = 1.0f;
+
+	kicker_body->CreateFixture(&fixture1);
+
+	PhysBody* pbody = new PhysBody();
+	pbody->body = kicker_body;
+	kicker_body->SetUserData(pbody);
+	pbody->width = (width*0.5)+2;
+	pbody->height = height*0.5;
+
+	
+	//creation of the prismatic joint
+	b2PrismaticJointDef jointDef;
+	b2Vec2 worldAxis(1.0f, 0.0f);
+	jointDef.Initialize(ball_joint, kicker_body, ball_joint->GetWorldCenter(), worldAxis);
+	jointDef.lowerTranslation = -5.0f;
+	jointDef.upperTranslation =5.0f;
+	jointDef.enableLimit = true;
+	jointDef.maxMotorForce = 1.0f;
+	jointDef.motorSpeed = 0.0f;
+	jointDef.enableMotor = true;
+	App->scene_intro->kickers.add(pbody);
+
+	return pbody;
+
 }
 
 // 
