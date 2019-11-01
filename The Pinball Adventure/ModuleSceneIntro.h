@@ -24,6 +24,7 @@ public:
 	p2List<PhysBody*> left_flippers;
 	p2List<PhysBody*> right_flippers;
 	p2List<PhysBody*> kickers;
+	p2List<PhysBody*> frogs;
 
 	PhysBody* sensor;
 	bool sensed;
@@ -35,6 +36,7 @@ public:
 	SDL_Texture* left_flipper;
 	SDL_Texture* right_flipper;
 	SDL_Texture* kicker;
+	SDL_Texture* frog;
 	uint bonus_fx;
 	uint flipper_fx;
 	uint start_fx;

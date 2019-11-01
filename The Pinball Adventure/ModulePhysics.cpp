@@ -38,7 +38,7 @@ bool ModulePhysics::Start()
 
 	// LEFT FLIPPER
 	CreateFlipper(155, 630, 198, 631, 90, 18, 0); // Left == 0 
-	CreateFlipper(360, 630, 318, 635, 90, 18, 1); // Right == 1
+	CreateFlipper(360, 630, 318, 637, 90, 18, 1); // Right == 1
 	CreateKicker(507,660,507, 660, 30, 19);
 
 	return true;

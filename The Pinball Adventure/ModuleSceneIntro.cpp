@@ -31,6 +31,7 @@ bool ModuleSceneIntro::Start()
 	map = App->textures->Load("pinball/map.png");
 	left_flipper = App->textures->Load("pinball/left_flipper.png");
 	right_flipper = App->textures->Load("pinball/rigth_flipper.png");
+	frog = App->textures->Load("pinball/frog.png");
 
 	bonus_fx = App->audio->LoadFx("pinball/bonus.wav");
 	flipper_fx = App->audio->LoadFx("pinball/flipper.wav");
@@ -178,6 +179,9 @@ bool ModuleSceneIntro::Start()
 	App->physics->CreateChain(0, 0, left_platform, 12);
 	App->physics->CreateChain(0, 0, right_platform, 12);
 	App->physics->CreateChain(0, 0, top_platform, 42);
+	frogs.add(App->physics->CreateCircle(150, 280, 20, false));
+	frogs.add(App->physics->CreateCircle(370, 280, 20, false));
+	frogs.add(App->physics->CreateCircle(260, 350, 20, false));
 	//App->physics->CreateCircle(150, 635, 5, false);
 	//right_flippers.add(App->physics->CreateRectangle(320, 635, 90, 10));
 	//left_flippers.add(App->physics->CreateRectangle(200, 635, 90, 10));
@@ -274,13 +278,24 @@ update_status ModuleSceneIntro::Update()
 	fVector normal(0.0f, 0.0f);
 
 	// All draw functions ------------------------------------------------------
-	p2List_item<PhysBody*>* c = circles.getFirst();
+	p2List_item<PhysBody*>* c = frogs.getFirst();
 
 	while(c != NULL)
 	{
 		int x, y;
 		c->data->GetPosition(x, y);
 		
+		App->renderer->Blit(frog, x-15, y, NULL, 1.0f, c->data->GetRotation());
+		c = c->next;
+	}
+
+	c = circles.getFirst();
+
+	while (c != NULL)
+	{
+		int x, y;
+		c->data->GetPosition(x, y);
+
 		App->renderer->Blit(ball, x, y, NULL, 1.0f, c->data->GetRotation());
 		c = c->next;
 	}
@@ -356,7 +371,7 @@ void ModuleSceneIntro::OnCollision(PhysBody* bodyA, PhysBody* bodyB)
 {
 	int x, y;	
 	//bodyA->body->ApplyForce({ 3,0 }, bodyA->body->GetLocalCenter(), true);
-
+	
 	/*
 	if(bodyA)
 	{
