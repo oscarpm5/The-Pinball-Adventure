@@ -48,9 +48,10 @@ int ModuleFonts::Load(const char* texture_path, const char* characters, uint row
 	fonts[id].rows = rows; // rows: rows of characters in the texture
 	App->textures->GetSize(tex, texturew, textureh);
 	fonts[id].len = strlen(characters); // len: length of the table
-	fonts[id].char_w = texturew / (fonts[id].len / rows);
-	fonts[id].char_h = (textureh / rows) - rows;//there's a blank pixel line before every row
 	fonts[id].row_chars = fonts[id].len / rows;
+	fonts[id].char_w = texturew / fonts[id].row_chars;
+	fonts[id].char_h = (textureh / rows);
+	
 	SDL_strlcpy(fonts[id].table, characters, fonts[id].len+1);
 
 
@@ -78,7 +79,7 @@ void ModuleFonts::UnLoad(int font_id)
 }
 
 // Render text using a bitmap font
-void ModuleFonts::BlitText(int x, int y, int font_id, const char* text) const
+void ModuleFonts::BlitText(int x, int y, int font_id, const char* text,float scale) const
 {
 	if (text == nullptr || font_id < 0 || font_id >= MAX_FONTS || fonts[font_id].graphic == nullptr)
 	{
@@ -103,7 +104,7 @@ void ModuleFonts::BlitText(int x, int y, int font_id, const char* text) const
 				rect.y = rect.h*(j / font->row_chars); //x position of the rectangle in the texture
 				rect.x = rect.w*(j%font->row_chars);//y position of the rectangle in the texture
 
-				App->renderer->Blit(font->graphic, x + (rect.w*charPosX), y, &rect, 0, false);//Blit of the font, each letter goes on a greater x pos
+				App->renderer->BlitEx(font->graphic, x + (rect.w*charPosX*scale), y, &rect,0,scale);//Blit of the font, each letter goes on a greater x pos
 				charPosX++;
 				break;
 			}
