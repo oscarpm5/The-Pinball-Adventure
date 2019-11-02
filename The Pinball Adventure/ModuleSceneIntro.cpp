@@ -193,12 +193,12 @@ bool ModuleSceneIntro::Start()
 	399, 556
 	};
 
-	App->physics->CreateChain(0, 0, map, 176, 0.3f);
-	App->physics->CreateChain(0, 0, left_platform, 12, 0.3f);
-	App->physics->CreateChain(0, 0, right_platform, 12, 0.3f);
-	App->physics->CreateChain(0, 0, top_platform, 42, 0.3f);
-	App->physics->CreateChain(0, 0, left_bumper, 8, 0.3f);
-	App->physics->CreateChain(0, 0, right_bumper, 8, 0.3f);
+	chains.add(App->physics->CreateChain(0, 0, map, 176, 0.3f));
+	chains.add(App->physics->CreateChain(0, 0, left_platform, 12, 0.3f));
+	chains.add(App->physics->CreateChain(0, 0, right_platform, 12, 0.3f));
+	chains.add(App->physics->CreateChain(0, 0, top_platform, 42, 0.3f));
+	chains.add(App->physics->CreateChain(0, 0, left_bumper, 8, 0.3f));
+	chains.add(App->physics->CreateChain(0, 0, right_bumper, 8, 0.3f));
 
 	frogs.add(App->physics->CreateCircle(80, 318, 20, false, 1.0f));//left center frog
 	frogs.add(App->physics->CreateCircle(205, 292, 20, false, 1.0f));//left upper frog
@@ -221,6 +221,14 @@ bool ModuleSceneIntro::Start()
 	leftbumper = App->physics->CreateRectangle(144, 535, 80, 10, true, 1.06f);
 	rightbumper = App->physics->CreateRectangle(376, 535, 80, 10, true, 2.06f);
 
+
+
+	//Inicializes the highscore table with 3 0's to avoid errors
+	highscore_list.add(0);
+	highscore_list.add(0);
+	highscore_list.add(0);
+
+
 	return ret;
 }
 
@@ -229,9 +237,121 @@ bool ModuleSceneIntro::CleanUp()
 {
 	LOG("Unloading Intro scene");
 
+	//Unload Circles
+	p2List_item<PhysBody*>* item = circles.getFirst();
+	while (item != NULL)
+	{
+		App->physics->world->DestroyBody(item->data->body);
+		item = item->next;
+	}
+	circles.clear();
+
+	//Unload Frogs
+	item = frogs.getFirst();
+	while (item != NULL)
+	{
+		App->physics->world->DestroyBody(item->data->body);
+		item = item->next;
+	}
+	frogs.clear();
+
+	//Unload RedSensors
+	item = red_sensors.getFirst();
+	while (item != NULL)
+	{
+		App->physics->world->DestroyBody(item->data->body);
+		item = item->next;
+	}
+	red_sensors.clear();
+
+	//Unload Kickers
+	item = kickers.getFirst();
+	while (item != NULL)
+	{
+		App->physics->world->DestroyBody(item->data->body);
+		item = item->next;
+	}
+	kickers.clear();
+
+	//unload Flippers
+	item = right_flippers.getFirst();
+	while (item != NULL)
+	{
+		App->physics->world->DestroyBody(item->data->body);
+		item = item->next;
+	}
+	right_flippers.clear();
+
+	item = left_flippers.getFirst();
+	while (item != NULL)
+	{
+		App->physics->world->DestroyBody(item->data->body);
+		item = item->next;
+	}
+	left_flippers.clear();
+
+	//Unload Ricks
+	item = ricks.getFirst();
+	while (item != NULL)
+	{
+		App->physics->world->DestroyBody(item->data->body);
+		item = item->next;
+	}
+	ricks.clear();
+
+	//Unload Boxes
+	item = boxes.getFirst();
+	while (item != NULL)
+	{
+		App->physics->world->DestroyBody(item->data->body);
+		item = item->next;
+	}
+	boxes.clear();
+
+	//Unload Chains
+	item = chains.getFirst();
+	while (item != NULL)
+	{
+		App->physics->world->DestroyBody(item->data->body);
+		item = item->next;
+	}
+	chains.clear();
+
+	//Unload other elements
+	if (sensor != NULL)
+		App->physics->world->DestroyBody(sensor->body);
+	if (leftbumper != NULL)
+		App->physics->world->DestroyBody(leftbumper->body);
+	if (rightbumper != NULL)
+		App->physics->world->DestroyBody(rightbumper->body);
+
+
+
+
+	highscore_list.clear();
+
+
+	//Unload textures
+	App->textures->Unload(ball);
+	App->textures->Unload(box);
+	App->textures->Unload(rick);
+	App->textures->Unload(map);
+	App->textures->Unload(left_flipper);
+	App->textures->Unload(right_flipper);
+	App->textures->Unload(frog);
+	App->textures->Unload(red_sensor);
+	App->textures->Unload(kicker);
+
+	//Unload text
+	App->fonts->UnLoad(0);
+
+	return true;
+}
+bool ModuleSceneIntro::Reset()
+{
 	lives = 3;
 	score = 0;
-
+	alreadyfinished = false;
 	return true;
 }
 
@@ -402,40 +522,73 @@ update_status ModuleSceneIntro::Update()
 			App->renderer->DrawLine(ray.x + destination.x, ray.y + destination.y, ray.x + destination.x + normal.x * 25.0f, ray.y + destination.y + normal.y * 25.0f, 100, 255, 100);
 	}
 
-
+	BlitScore();
 	if ((lives == 2 || lives == 1) && alreadycreated == false) {
 
 		circles.add(App->physics->CreateCircle(508, 502, 10, true, -1, true));
 		circles.getLast()->data->listener = this;
 		alreadycreated = true;
 	}
-
 	else if (lives == 0) {
 
-		if (score > highscore)
-			highscore = score;
+		if (alreadyfinished == false)
+			highscore_list.add(score);
+
+
+		int first;
+		int second;
+		int third;
+		GetTopHighScores(first, second, third);
+		highscore = first;
+
+		sprintf_s(top1score_char, 10, "%d", first);
+		sprintf_s(top2score_char, 10, "%d", second);
+		sprintf_s(top3score_char, 10, "%d", third);
+
 
 		SDL_Rect black_square;
-		black_square.x = 150;
-		black_square.y = 280;
-		black_square.w = 250;
-		black_square.h = 150;
-		App->renderer->DrawQuad(black_square, 0, 0, 0, 255, true, false);
+		black_square.w = SCREEN_WIDTH;
+		black_square.h = SCREEN_HEIGHT;
+		black_square.x = (SCREEN_WIDTH * 0.5) - (black_square.w * 0.5);
+		black_square.y = (SCREEN_HEIGHT * 0.5) - (black_square.h * 0.5);
 
-		App->fonts->BlitText(160, 300, 0, "GAME OVER", 4.0f);
-		App->fonts->BlitText(160, 350, 0, "Start Again", 2.0f);
-		App->fonts->BlitText(310, 352, 0, "[Enter]", 1.5f);
-		App->fonts->BlitText(160, 400, 0, "Exit", 2.0f);
-		App->fonts->BlitText(310, 402, 0, "[Escape]", 1.5f);
+		App->renderer->DrawQuad(black_square, 0, 0, 0, 230, true, false);
+
+		App->fonts->BlitText(230, 100, 0, "GAME OVER", 6.0f);
+		App->fonts->BlitText(280, 600, 0, "Start Again", 2.0f);
+		App->fonts->BlitText(430, 602, 0, "[Enter]", 1.5f);
+		App->fonts->BlitText(280, 650, 0, "Exit", 2.0f);
+		App->fonts->BlitText(422, 652, 0, "[Escape]", 1.5f);
+
+		//your score
+		App->fonts->BlitText(300, 175, 0, "YOUR SCORE:", 2.0f);
+		App->fonts->BlitText(445, 175, 0, score_char, 2.0f);
+
+		//highscores
+		App->fonts->BlitText(285, 280, 0, "HIGSCORES", 3.5f);
+
+		//1
+		App->fonts->BlitText(250, 350, 0, "1. ", 2.5f);
+		App->fonts->BlitText(280, 350, 0, top1score_char, 2.5f);
+
+		//2
+		App->fonts->BlitText(250, 410, 0, "2. ", 2.5f);
+		App->fonts->BlitText(280, 410, 0, top2score_char, 2.5f);
+
+		//3
+		App->fonts->BlitText(250, 470, 0, "3. ", 2.5f);
+		App->fonts->BlitText(280, 470, 0, top3score_char, 2.5f);
 
 
+		alreadyfinished = true;
 		if (App->input->GetKey(SDL_SCANCODE_RETURN) == KEY_DOWN) {
-			CleanUp();
+			Reset();
 		}
 
 
+
 	}
-	BlitScore();
+
 
 	return UPDATE_CONTINUE;
 }
@@ -475,3 +628,47 @@ void ModuleSceneIntro::BlitScore() {
 
 
 }
+
+void ModuleSceneIntro::GetTopHighScores(int& first, int& second, int& third)
+{
+	int elements = highscore_list.count();
+
+	int* int_list = new int[elements];
+
+	p2List_item<int>* item = highscore_list.getFirst();
+
+
+	//takes all the scores and puts them into an array
+	for (int i = 0; i < elements; i++)
+	{
+		int_list[i] = item->data;
+		item = item->next;
+	}
+
+	BubbleSort(int_list, elements);
+
+	first = int_list[0];
+	second = int_list[1];
+	third = int_list[2];
+
+}
+
+void ModuleSceneIntro::BubbleSort(int arr[], int n)
+{
+
+	int i, j;
+	for (i = 0; i < n - 1; i++)
+
+		// Last i elements are already in place  
+		for (j = 0; j < n - i - 1; j++)
+			if (arr[j] < arr[j + 1])
+				Swap(&arr[j], &arr[j + 1]);
+}
+
+void ModuleSceneIntro::Swap(int* xp, int* yp)
+{
+	int temp = *xp;
+	*xp = *yp;
+	*yp = temp;
+}
+

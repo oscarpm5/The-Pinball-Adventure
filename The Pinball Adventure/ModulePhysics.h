@@ -56,11 +56,11 @@ public:
 	b2RevoluteJoint* flipper_joint_left;
 	b2RevoluteJoint* flipper_joint_right;
 	b2PrismaticJoint* kicker_joint;
-
+	b2World* world;
 private:
 
 	bool debug;
-	b2World* world;
+	
 	b2MouseJoint* mouse_joint;
 
 	b2Body* ground;
