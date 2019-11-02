@@ -51,6 +51,9 @@ public:
 	bool alreadycreated = false;
 	int lives = 3;
 	int score = 0;
+	int highscore = 0;
 	char score_char[10];
 	char lives_char[10];
+	char highscore_char[10];
+
 };

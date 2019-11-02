@@ -229,6 +229,9 @@ bool ModuleSceneIntro::CleanUp()
 {
 	LOG("Unloading Intro scene");
 
+	lives = 3;
+	score = 0;
+
 	return true;
 }
 
@@ -243,72 +246,64 @@ update_status ModuleSceneIntro::Update()
 
 	App->renderer->Blit(map, 0, 0, &rect);
 
-	if ((lives == 2 || lives == 1) && alreadycreated == false) {
+	if (lives != 0) {
+		if (App->input->GetKey(SDL_SCANCODE_SPACE) == KEY_DOWN)
+		{
+			ray_on = !ray_on;
+			ray.x = App->input->GetMouseX();
+			ray.y = App->input->GetMouseY();
+		}
 
-		circles.add(App->physics->CreateCircle(508, 502, 10, true, -1, true));
-		circles.getLast()->data->listener = this;
-		alreadycreated = true;
+		if (App->input->GetKey(SDL_SCANCODE_1) == KEY_DOWN)
+		{
+			circles.add(App->physics->CreateCircle(App->input->GetMouseX(), App->input->GetMouseY(), 10, true, -1, true));
+			circles.getLast()->data->listener = this;
+		}
+
+		if (App->input->GetKey(SDL_SCANCODE_2) == KEY_DOWN)
+		{
+			boxes.add(App->physics->CreateRectangle(App->input->GetMouseX(), App->input->GetMouseY(), 100, 50, true));
+		}
+
+
+		// Flippers' Motors Logic -------------------------------------
+
+		if (App->input->GetKey(SDL_SCANCODE_LEFT) == KEY_DOWN || App->input->GetKey(SDL_SCANCODE_RIGHT) == KEY_DOWN)
+			App->audio->PlayFx(App->scene_intro->flipper_fx, 0);
+
+		if (App->input->GetKey(SDL_SCANCODE_LEFT) == KEY_REPEAT)
+		{
+
+			App->physics->flipper_joint_left->EnableMotor(true);
+		}
+
+		if (App->input->GetKey(SDL_SCANCODE_LEFT) == KEY_UP)
+		{
+			App->physics->flipper_joint_left->EnableMotor(false);
+		}
+
+		if (App->input->GetKey(SDL_SCANCODE_RIGHT) == KEY_REPEAT)
+		{
+			App->physics->flipper_joint_right->EnableMotor(true);
+		}
+
+		if (App->input->GetKey(SDL_SCANCODE_RIGHT) == KEY_UP)
+		{
+			App->physics->flipper_joint_right->EnableMotor(false);
+		}
+
+		//kickers Motors Logic-----------------------------------------
+
+		if (App->input->GetKey(SDL_SCANCODE_DOWN) == KEY_REPEAT)
+		{
+			App->physics->kicker_joint->SetMotorSpeed(2);
+		}
+		else
+		{
+			App->physics->kicker_joint->SetMotorSpeed(-15);
+		}
 	}
 
-	else if (lives == 0) {
-		//LOG("GAME OVER!");
-	}
-
-	if (App->input->GetKey(SDL_SCANCODE_SPACE) == KEY_DOWN)
-	{
-		ray_on = !ray_on;
-		ray.x = App->input->GetMouseX();
-		ray.y = App->input->GetMouseY();
-	}
-
-	if (App->input->GetKey(SDL_SCANCODE_1) == KEY_DOWN)
-	{
-		circles.add(App->physics->CreateCircle(App->input->GetMouseX(), App->input->GetMouseY(), 10, true, -1, true));
-		circles.getLast()->data->listener = this;
-	}
-
-	if (App->input->GetKey(SDL_SCANCODE_2) == KEY_DOWN)
-	{
-		boxes.add(App->physics->CreateRectangle(App->input->GetMouseX(), App->input->GetMouseY(), 100, 50, true));
-	}
-
-
-	// Flippers' Motors Logic -------------------------------------
-
-	if (App->input->GetKey(SDL_SCANCODE_LEFT) == KEY_DOWN || App->input->GetKey(SDL_SCANCODE_RIGHT) == KEY_DOWN)
-		App->audio->PlayFx(App->scene_intro->flipper_fx, 0);
-
-	if (App->input->GetKey(SDL_SCANCODE_LEFT) == KEY_REPEAT)
-	{
-
-		App->physics->flipper_joint_left->EnableMotor(true);
-	}
-
-	if (App->input->GetKey(SDL_SCANCODE_LEFT) == KEY_UP)
-	{
-		App->physics->flipper_joint_left->EnableMotor(false);
-	}
-
-	if (App->input->GetKey(SDL_SCANCODE_RIGHT) == KEY_REPEAT)
-	{
-		App->physics->flipper_joint_right->EnableMotor(true);
-	}
-
-	if (App->input->GetKey(SDL_SCANCODE_RIGHT) == KEY_UP)
-	{
-		App->physics->flipper_joint_right->EnableMotor(false);
-	}
-
-	//kickers Motors Logic-----------------------------------------
-
-	if (App->input->GetKey(SDL_SCANCODE_DOWN) == KEY_REPEAT)
-	{
-		App->physics->kicker_joint->SetMotorSpeed(2);
-	}
-	else
-	{
-		App->physics->kicker_joint->SetMotorSpeed(-15);
-	}
 
 	// Prepare for raycast ------------------------------------------------------
 
@@ -407,6 +402,39 @@ update_status ModuleSceneIntro::Update()
 			App->renderer->DrawLine(ray.x + destination.x, ray.y + destination.y, ray.x + destination.x + normal.x * 25.0f, ray.y + destination.y + normal.y * 25.0f, 100, 255, 100);
 	}
 
+
+	if ((lives == 2 || lives == 1) && alreadycreated == false) {
+
+		circles.add(App->physics->CreateCircle(508, 502, 10, true, -1, true));
+		circles.getLast()->data->listener = this;
+		alreadycreated = true;
+	}
+
+	else if (lives == 0) {
+
+		if (score > highscore)
+			highscore = score;
+
+		SDL_Rect black_square;
+		black_square.x = 150;
+		black_square.y = 280;
+		black_square.w = 250;
+		black_square.h = 150;
+		App->renderer->DrawQuad(black_square, 0, 0, 0, 255, true, false);
+
+		App->fonts->BlitText(160, 300, 0, "GAME OVER", 4.0f);
+		App->fonts->BlitText(160, 350, 0, "Start Again", 2.0f);
+		App->fonts->BlitText(310, 352, 0, "[Enter]", 1.5f);
+		App->fonts->BlitText(160, 400, 0, "Exit", 2.0f);
+		App->fonts->BlitText(310, 402, 0, "[Escape]", 1.5f);
+
+
+		if (App->input->GetKey(SDL_SCANCODE_RETURN) == KEY_DOWN) {
+			CleanUp();
+		}
+
+
+	}
 	BlitScore();
 
 	return UPDATE_CONTINUE;
@@ -441,7 +469,9 @@ void ModuleSceneIntro::BlitScore() {
 	sprintf_s(score_char, 10, "%d", score);
 	App->fonts->BlitText(550, 360, 0, score_char, 1.8f);
 
-
+	App->fonts->BlitText(630, 339, 0, "Highscore", 1.8f);
+	sprintf_s(highscore_char, 10, "%d", highscore);
+	App->fonts->BlitText(630, 360, 0, highscore_char, 1.8f);
 
 
 }
