@@ -158,7 +158,7 @@ PhysBody* ModulePhysics::CreateCircle(int x, int y, int radius, bool dynamic,int
 	return pbody;
 }
 
-PhysBody* ModulePhysics::CreateRectangle(int x, int y, int width, int height, bool dynamic, float angle,bool sensor)
+PhysBody* ModulePhysics::CreateRectangle(int x, int y, int width, int height, bool dynamic, float angle,bool sensor, int restitution)
 {
 	b2BodyDef body;
 	body.angle = angle;	
@@ -179,6 +179,10 @@ PhysBody* ModulePhysics::CreateRectangle(int x, int y, int width, int height, bo
 	fixture.density = 1.0f;
 	fixture.isSensor = sensor;
 
+	if (restitution != -1)
+	{
+		fixture.restitution = restitution;//restitution value can range between 0 and 1 in normal conditions. It determines the bounciness
+	}
 	b->CreateFixture(&fixture);
 
 	PhysBody* pbody = new PhysBody();
@@ -191,33 +195,6 @@ PhysBody* ModulePhysics::CreateRectangle(int x, int y, int width, int height, bo
 	return pbody;
 }
 
-
-PhysBody* ModulePhysics::CreateRectangleSensor(int x, int y, int width, int height)
-{
-	b2BodyDef body;
-	body.type = b2_staticBody;
-	body.position.Set(PIXEL_TO_METERS(x), PIXEL_TO_METERS(y));
-
-	b2Body* b = world->CreateBody(&body);
-
-	b2PolygonShape box;
-	box.SetAsBox(PIXEL_TO_METERS(width) * 0.5f, PIXEL_TO_METERS(height) * 0.5f);
-
-	b2FixtureDef fixture;
-	fixture.shape = &box;
-	fixture.density = 1.0f;
-	fixture.isSensor = true;
-
-	b->CreateFixture(&fixture);
-
-	PhysBody* pbody = new PhysBody();
-	pbody->body = b;
-	b->SetUserData(pbody);
-	pbody->width = width;
-	pbody->height = height;
-
-	return pbody;
-}
 
 PhysBody* ModulePhysics::CreateChain(int x, int y, int* points, int size)
 {
@@ -515,5 +492,14 @@ void ModulePhysics::BeginContact(b2Contact* contact)
 	{
 		App->scene_intro->score += 100;
 		physB->listener->OnCollision(physB, physA);
+	}
+
+	if (physB && physB->listener != NULL && App->scene_intro->red_sensors.findNode(physA))
+	{
+
+		App->scene_intro->score += 100;
+		physB->listener->OnCollision(physB, physA);
+		App->scene_intro->red_sensors.del(App->scene_intro->red_sensors.findNode(physA));
+		physA->body->GetFixtureList()->SetSensor(true);
 	}
 }

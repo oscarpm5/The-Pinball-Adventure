@@ -44,8 +44,7 @@ bool ModuleSceneIntro::Start()
 	kicker = App->textures->Load("pinball/kicker.png");
 
 	App->fonts->Load("pinball/font.png", "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz.:;[]0123456789           ", 3);
-
-	sensor = App->physics->CreateRectangleSensor(SCREEN_WIDTH / 2, SCREEN_HEIGHT, SCREEN_WIDTH, 3);
+	sensor = App->physics->CreateRectangle(SCREEN_WIDTH / 2, SCREEN_HEIGHT, SCREEN_WIDTH, 3, true, 0, true);
 
 	int map[176] = {
 		527, 669,
@@ -207,13 +206,12 @@ bool ModuleSceneIntro::Start()
 
 	circles.add(App->physics->CreateCircle(508, 502, 10, true));
 	circles.getLast()->data->listener = this;
-
-	red_sensors.add(App->physics->CreateRectangle(58, 459, 35, 15, true, 0.6,true));
-	red_sensors.add(App->physics->CreateRectangle(460, 459, 35, 15, true, -0.6, true));
-	red_sensors.add(App->physics->CreateRectangle(140, 225, 35, 15, true,0 , true));
-	red_sensors.add(App->physics->CreateRectangle(180, 225, 35, 15, true, 0, true));
-	red_sensors.add(App->physics->CreateRectangle(340, 225, 35, 15, true, 0, true));
-	red_sensors.add(App->physics->CreateRectangle(380, 225, 35, 15, true, 0, true));
+	red_sensors.add(App->physics->CreateRectangle(58, 459, 35, 15, true, 0.6, false, 1.75f));
+	red_sensors.add(App->physics->CreateRectangle(460, 459, 35, 15, true, -0.6, false, 1.75f));
+	red_sensors.add(App->physics->CreateRectangle(140, 225, 35, 15, true, 0, false, 1.75f));
+	red_sensors.add(App->physics->CreateRectangle(180, 225, 35, 15, true, 0, false, 1.75f));
+	red_sensors.add(App->physics->CreateRectangle(340, 225, 35, 15, true, 0, false, 1.75f));
+	red_sensors.add(App->physics->CreateRectangle(380, 225, 35, 15, true, 0, false, 1.75f));
 
 	App->physics->CreateRectangle(144, 535, 80, 5, true, 1.06f);
 	App->physics->CreateRectangle(376, 535, 80, 5, true, 2.06f);
