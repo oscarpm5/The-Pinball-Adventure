@@ -29,6 +29,8 @@ public:
 	p2List<PhysBody*> red_sensors;
 
 	PhysBody* sensor;
+	PhysBody* leftbumper;
+	PhysBody* rightbumper;
 	bool sensed;
 
 	SDL_Texture* ball;

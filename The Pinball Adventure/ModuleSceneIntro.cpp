@@ -200,11 +200,11 @@ bool ModuleSceneIntro::Start()
 	App->physics->CreateChain(0, 0, left_bumper, 8);
 	App->physics->CreateChain(0, 0, right_bumper, 8);
 
-	frogs.add(App->physics->CreateCircle(150, 280, 20, false,1.75f));
+	frogs.add(App->physics->CreateCircle(150, 280, 20, false, 1.75f));
 	frogs.add(App->physics->CreateCircle(370, 280, 20, false, 1.75f));
 	frogs.add(App->physics->CreateCircle(260, 350, 20, false, 1.75f));
 
-	circles.add(App->physics->CreateCircle(508, 502, 10, true));
+	circles.add(App->physics->CreateCircle(508, 502, 10, true, -1, true));
 	circles.getLast()->data->listener = this;
 	red_sensors.add(App->physics->CreateRectangle(58, 459, 35, 15, true, 0.6, false, 1.75f));
 	red_sensors.add(App->physics->CreateRectangle(460, 459, 35, 15, true, -0.6, false, 1.75f));
@@ -213,8 +213,8 @@ bool ModuleSceneIntro::Start()
 	red_sensors.add(App->physics->CreateRectangle(340, 225, 35, 15, true, 0, false, 1.75f));
 	red_sensors.add(App->physics->CreateRectangle(380, 225, 35, 15, true, 0, false, 1.75f));
 
-	App->physics->CreateRectangle(144, 535, 80, 5, true, 1.06f);
-	App->physics->CreateRectangle(376, 535, 80, 5, true, 2.06f);
+	leftbumper = App->physics->CreateRectangle(144, 535, 80, 10, true, 1.06f);
+	rightbumper = App->physics->CreateRectangle(376, 535, 80, 10, true, 2.06f);
 
 	return ret;
 }
@@ -240,7 +240,7 @@ update_status ModuleSceneIntro::Update()
 
 	if ((lives == 2 || lives == 1) && alreadycreated == false) {
 
-		circles.add(App->physics->CreateCircle(508, 502, 10, true));
+		circles.add(App->physics->CreateCircle(508, 502, 10, true, -1, true));
 		circles.getLast()->data->listener = this;
 		alreadycreated = true;
 	}
@@ -258,7 +258,7 @@ update_status ModuleSceneIntro::Update()
 
 	if (App->input->GetKey(SDL_SCANCODE_1) == KEY_DOWN)
 	{
-		circles.add(App->physics->CreateCircle(App->input->GetMouseX(), App->input->GetMouseY(), 10, true));
+		circles.add(App->physics->CreateCircle(App->input->GetMouseX(), App->input->GetMouseY(), 10, true, -1, true));
 		circles.getLast()->data->listener = this;
 	}
 
@@ -414,6 +414,10 @@ void ModuleSceneIntro::OnCollision(PhysBody* bodyA, PhysBody* bodyB)
 	if (bodyB == sensor && lives > 0) {
 		alreadycreated = false;
 		lives--;
+	}
+	if (bodyB == rightbumper || bodyB == leftbumper)
+	{
+		bodyA->body->ApplyLinearImpulse({ 0,-0.025f }, bodyA->body->GetWorldCenter(), true);
 	}
 }
 

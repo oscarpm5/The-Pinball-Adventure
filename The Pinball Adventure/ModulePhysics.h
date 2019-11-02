@@ -19,7 +19,7 @@ public:
 	PhysBody() : listener(NULL), body(NULL)
 	{}
 
-	void GetPosition(int& x, int &y) const;
+	void GetPosition(int& x, int& y) const;
 	float GetRotation() const;
 	bool Contains(int x, int y) const;
 	int RayCast(int x1, int y1, int x2, int y2, float& normal_x, float& normal_y) const;
@@ -42,8 +42,8 @@ public:
 	update_status PostUpdate();
 	bool CleanUp();
 
-	PhysBody* CreateCircle(int x, int y, int radius, bool dynamic, int restitution=-1);
-	PhysBody* CreateRectangle(int x, int y, int width, int height, bool dynamic, float angle = 0.0f, bool sensor = false, int restitution=-1);
+	PhysBody* CreateCircle(int x, int y, int radius, bool dynamic, int restitution = -1, bool alwaysactive = false);
+	PhysBody* CreateRectangle(int x, int y, int width, int height, bool dynamic, float angle = 0.0f, bool sensor = false, int restitution = -1);
 	PhysBody* CreateChain(int x, int y, int* points, int size);
 	PhysBody* CreateFlipper(int x1, int y1, int x2, int y, int width, int height, int left_right);
 	PhysBody* CreateKicker(int pivotX, int pivotY, int x1, int y1, int width, int height);
@@ -62,7 +62,7 @@ private:
 	bool debug;
 	b2World* world;
 	b2MouseJoint* mouse_joint;
-	
+
 	b2Body* ground;
 
 	int revolute_joint_speed = 12;
