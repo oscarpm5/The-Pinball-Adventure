@@ -129,7 +129,7 @@ PhysBody* ModulePhysics::CreateFlipper(int x, int y, int x1, int y1, int width, 
 	return pbody;
 }
 
-PhysBody* ModulePhysics::CreateCircle(int x, int y, int radius, bool dynamic, int restitution, bool alwaysactive)
+PhysBody* ModulePhysics::CreateCircle(int x, int y, int radius, bool dynamic, float restitution, bool alwaysactive)
 {
 	b2BodyDef body;
 	if (dynamic)
@@ -151,7 +151,7 @@ PhysBody* ModulePhysics::CreateCircle(int x, int y, int radius, bool dynamic, in
 	b2FixtureDef fixture;
 	fixture.shape = &shape;
 	fixture.density = 0.01f;
-	if (restitution != -1)
+	if (restitution != -1.0f)
 	{
 		fixture.restitution = restitution;//restitution value can range between 0 and 1 in normal conditions. It determines the bounciness
 	}
@@ -165,7 +165,7 @@ PhysBody* ModulePhysics::CreateCircle(int x, int y, int radius, bool dynamic, in
 	return pbody;
 }
 
-PhysBody* ModulePhysics::CreateRectangle(int x, int y, int width, int height, bool dynamic, float angle, bool sensor, int restitution)
+PhysBody* ModulePhysics::CreateRectangle(int x, int y, int width, int height, bool dynamic, float angle, bool sensor, float restitution)
 {
 	b2BodyDef body;
 	body.angle = angle;
@@ -186,7 +186,7 @@ PhysBody* ModulePhysics::CreateRectangle(int x, int y, int width, int height, bo
 	fixture.density = 1.0f;
 	fixture.isSensor = sensor;
 
-	if (restitution != -1)
+	if (restitution != -1.0f)
 	{
 		fixture.restitution = restitution;//restitution value can range between 0 and 1 in normal conditions. It determines the bounciness
 	}
@@ -203,7 +203,7 @@ PhysBody* ModulePhysics::CreateRectangle(int x, int y, int width, int height, bo
 }
 
 
-PhysBody* ModulePhysics::CreateChain(int x, int y, int* points, int size)
+PhysBody* ModulePhysics::CreateChain(int x, int y, int* points, int size, float restitution)
 {
 	b2BodyDef body;
 	body.type = b2_staticBody;
@@ -224,7 +224,10 @@ PhysBody* ModulePhysics::CreateChain(int x, int y, int* points, int size)
 
 	b2FixtureDef fixture;
 	fixture.shape = &shape;
-
+	if (restitution != -1.0f)
+	{
+		fixture.restitution = restitution;//restitution value can range between 0 and 1 in normal conditions. It determines the bounciness
+	}
 	b->CreateFixture(&fixture);
 
 	delete p;

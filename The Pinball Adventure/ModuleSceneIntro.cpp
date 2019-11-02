@@ -193,19 +193,24 @@ bool ModuleSceneIntro::Start()
 	399, 556
 	};
 
-	App->physics->CreateChain(0, 0, map, 176);
-	App->physics->CreateChain(0, 0, left_platform, 12);
-	App->physics->CreateChain(0, 0, right_platform, 12);
-	App->physics->CreateChain(0, 0, top_platform, 42);
-	App->physics->CreateChain(0, 0, left_bumper, 8);
-	App->physics->CreateChain(0, 0, right_bumper, 8);
+	App->physics->CreateChain(0, 0, map, 176, 0.3f);
+	App->physics->CreateChain(0, 0, left_platform, 12, 0.3f);
+	App->physics->CreateChain(0, 0, right_platform, 12, 0.3f);
+	App->physics->CreateChain(0, 0, top_platform, 42, 0.3f);
+	App->physics->CreateChain(0, 0, left_bumper, 8, 0.3f);
+	App->physics->CreateChain(0, 0, right_bumper, 8, 0.3f);
 
-	frogs.add(App->physics->CreateCircle(150, 280, 20, false, 1.75f));
-	frogs.add(App->physics->CreateCircle(370, 280, 20, false, 1.75f));
-	frogs.add(App->physics->CreateCircle(260, 350, 20, false, 1.75f));
+	frogs.add(App->physics->CreateCircle(80, 318, 20, false, 1.0f));//left center frog
+	frogs.add(App->physics->CreateCircle(205, 292, 20, false, 1.0f));//left upper frog
+	frogs.add(App->physics->CreateCircle(150, 370, 20, false, 1.0f));//left lower frog
 
-	circles.add(App->physics->CreateCircle(508, 502, 10, true, -1, true));
+	frogs.add(App->physics->CreateCircle(440, 318, 20, false, 1.0f));//right center frog
+	frogs.add(App->physics->CreateCircle(320, 292, 20, false, 1.0f));//right upper frog
+	frogs.add(App->physics->CreateCircle(375, 370, 20, false, 1.0f));//right lower frog
+
+	circles.add(App->physics->CreateCircle(508, 502, 10, true, -1, true)); //first ball
 	circles.getLast()->data->listener = this;
+
 	red_sensors.add(App->physics->CreateRectangle(58, 459, 35, 15, true, 0.6, false, 1.75f));
 	red_sensors.add(App->physics->CreateRectangle(460, 459, 35, 15, true, -0.6, false, 1.75f));
 	red_sensors.add(App->physics->CreateRectangle(140, 225, 35, 15, true, 0, false, 1.75f));

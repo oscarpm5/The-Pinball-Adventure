@@ -42,9 +42,9 @@ public:
 	update_status PostUpdate();
 	bool CleanUp();
 
-	PhysBody* CreateCircle(int x, int y, int radius, bool dynamic, int restitution = -1, bool alwaysactive = false);
-	PhysBody* CreateRectangle(int x, int y, int width, int height, bool dynamic, float angle = 0.0f, bool sensor = false, int restitution = -1);
-	PhysBody* CreateChain(int x, int y, int* points, int size);
+	PhysBody* CreateCircle(int x, int y, int radius, bool dynamic, float restitution = -1.0f, bool alwaysactive = false);
+	PhysBody* CreateRectangle(int x, int y, int width, int height, bool dynamic, float angle = 0.0f, bool sensor = false, float restitution = -1.0f);
+	PhysBody* CreateChain(int x, int y, int* points, int size, float restitution = -1.0f);
 	PhysBody* CreateFlipper(int x1, int y1, int x2, int y, int width, int height, int left_right);
 	PhysBody* CreateKicker(int pivotX, int pivotY, int x1, int y1, int width, int height);
 	//PhysBody* CreateBumper(int pivotX, int pivotY, int x1, int y1, int width, int height);
