@@ -505,7 +505,7 @@ void ModulePhysics::BeginContact(b2Contact* contact)
 		physB->listener->OnCollision(physB, physA);
 	}
 
-	if (physB && physB->listener != NULL && (App->scene_intro->leftbumper==physA || App->scene_intro->rightbumper == physA))
+	if (physB && physB->listener != NULL && (App->scene_intro->leftbumper == physA || App->scene_intro->rightbumper == physA))
 	{
 		App->audio->PlayFx(4, 0);
 		physB->listener->OnCollision(physB, physA);
@@ -513,7 +513,6 @@ void ModulePhysics::BeginContact(b2Contact* contact)
 
 	if (physB && physB->listener != NULL && App->scene_intro->red_sensors.findNode(physA))
 	{
-
 		App->scene_intro->score += 100;
 		physB->listener->OnCollision(physB, physA);
 		App->scene_intro->red_sensors.del(App->scene_intro->red_sensors.findNode(physA));

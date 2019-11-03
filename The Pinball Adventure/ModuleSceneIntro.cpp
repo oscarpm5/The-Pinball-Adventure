@@ -352,6 +352,21 @@ bool ModuleSceneIntro::Reset()
 {
 	App->audio->PlayFx(3, 0);
 	circles.add(App->physics->CreateCircle(508, 502, 10, true, -1, true));
+	
+	p2List_item<PhysBody*>* item = red_sensors.getFirst();
+	while (item != NULL)
+	{
+		App->physics->world->DestroyBody(item->data->body);
+		item = item->next;
+	}
+	red_sensors.clear();
+
+	red_sensors.add(App->physics->CreateRectangle(58, 459, 35, 15, true, 0.6, false, 1.75f));
+	red_sensors.add(App->physics->CreateRectangle(460, 459, 35, 15, true, -0.6, false, 1.75f));
+	red_sensors.add(App->physics->CreateRectangle(140, 225, 35, 15, true, 0, false, 1.75f));
+	red_sensors.add(App->physics->CreateRectangle(180, 225, 35, 15, true, 0, false, 1.75f));
+	red_sensors.add(App->physics->CreateRectangle(340, 225, 35, 15, true, 0, false, 1.75f));
+	red_sensors.add(App->physics->CreateRectangle(380, 225, 35, 15, true, 0, false, 1.75f));
 	lives = 3;
 	score = 0;
 	alreadyfinished = false;
