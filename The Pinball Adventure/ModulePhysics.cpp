@@ -18,7 +18,7 @@ ModulePhysics::ModulePhysics(Application* app, bool start_enabled) : Module(app,
 {
 	world = NULL;
 	mouse_joint = NULL;
-	debug = true;
+	debug = false;
 }
 
 // Destructor
@@ -260,7 +260,7 @@ PhysBody* ModulePhysics::CreateKicker(int pivotX, int pivotY, int x1, int y1, in
 
 	//Creation of the kicker
 	b2BodyDef kicker;
-	kicker.type = b2_dynamicBody;//TODO CHANGE THIS TO DYNAMIC
+	kicker.type = b2_dynamicBody;
 	kicker.position.Set(PIXEL_TO_METERS(x1), PIXEL_TO_METERS(y1));
 
 	b2Body* kicker_body = world->CreateBody(&kicker);
@@ -306,8 +306,7 @@ update_status ModulePhysics::PostUpdate()
 	if (!debug)
 		return UPDATE_CONTINUE;
 
-	// Bonus code: this will iterate all objects in the world and draw the circles
-	// You need to provide your own macro to translate meters to pixels
+	// This will iterate all objects in the world and draw the circles
 	for (b2Body* b = world->GetBodyList(); b; b = b->GetNext())
 	{
 		for (b2Fixture* f = b->GetFixtureList(); f; f = f->GetNext())
@@ -472,8 +471,6 @@ int PhysBody::RayCast(int x1, int y1, int x2, int y2, float& normal_x, float& no
 	{
 		if (fixture->GetShape()->RayCast(&output, input, body->GetTransform(), 0) == true)
 		{
-			// do we want the normal ?
-
 			float fx = x2 - x1;
 			float fy = y2 - y1;
 			float dist = sqrtf((fx * fx) + (fy * fy));

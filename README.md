@@ -14,6 +14,9 @@ Project GitHub:https://github.com/oscarpm5/The-Pinball-Adventure
 - :arrow_right:**Rigth Arrow:** Right Flipper
 - :arrow_down:**Down Arrow:** Ball Kicker
 
+## Combo Score:
+-If you hit all the red rectangles, you gain an extra life!
+
 
 ## Differences with the original game:
 In our project we are doing only the first level of the game instead of the original four different levels.

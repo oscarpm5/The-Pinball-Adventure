@@ -31,7 +31,7 @@ public:
 };
 
 // Module --------------------------------------
-class ModulePhysics : public Module, public b2ContactListener // TODO
+class ModulePhysics : public Module, public b2ContactListener 
 {
 public:
 	ModulePhysics(Application* app, bool start_enabled = true);
@@ -47,7 +47,6 @@ public:
 	PhysBody* CreateChain(int x, int y, int* points, int size, float restitution = -1.0f);
 	PhysBody* CreateFlipper(int x1, int y1, int x2, int y, int width, int height, int left_right);
 	PhysBody* CreateKicker(int pivotX, int pivotY, int x1, int y1, int width, int height);
-	//PhysBody* CreateBumper(int pivotX, int pivotY, int x1, int y1, int width, int height);
 
 
 	// b2ContactListener ---

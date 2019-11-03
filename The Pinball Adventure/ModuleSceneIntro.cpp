@@ -640,7 +640,11 @@ update_status ModuleSceneIntro::Update()
 	else if (lives == 0) {
 
 		if (alreadyfinished == false)
+		{
 			highscore_list.add(score);
+			previous_score = score;
+		}
+
 
 		// Sets flippers to original pos ----------------
 		App->physics->flipper_joint_left->EnableMotor(false);
@@ -726,13 +730,17 @@ void ModuleSceneIntro::BlitScore() {
 	App->fonts->BlitText(550, 315, 0, lives_char, 1.8f);
 
 	App->fonts->BlitText(550, 339, 0, "Score", 1.8f);
-	//App->fonts->BlitText(550, 360, 0, );
 	sprintf_s(score_char, 10, "%d", score);
 	App->fonts->BlitText(550, 360, 0, score_char, 1.8f);
 
 	App->fonts->BlitText(630, 339, 0, "Highscore", 1.8f);
 	sprintf_s(highscore_char, 10, "%d", highscore);
 	App->fonts->BlitText(630, 360, 0, highscore_char, 1.8f);
+
+
+	App->fonts->BlitText(630, 298, 0, "Last Score", 1.8f);
+	sprintf_s(previous_score_char, 10, "%d", previous_score);
+	App->fonts->BlitText(630, 315, 0, previous_score_char, 1.8f);
 
 
 }
