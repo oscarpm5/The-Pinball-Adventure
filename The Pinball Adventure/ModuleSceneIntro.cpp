@@ -356,12 +356,7 @@ bool ModuleSceneIntro::CleanUp()
 	if (rightbumper != NULL)
 		App->physics->world->DestroyBody(rightbumper->body);
 
-
-
-
 	highscore_list.clear();
-
-
 	//Unload textures
 	App->textures->Unload(ball);
 	App->textures->Unload(box);
@@ -382,7 +377,8 @@ bool ModuleSceneIntro::Reset()
 {
 	App->audio->PlayFx(3, 0);
 	circles.add(App->physics->CreateCircle(508, 502, 10, true, -1, true));
-
+	circles.getLast()->data->listener = this;
+	
 	p2List_item<PhysBody*>* item = red_sensors.getFirst();
 	while (item != NULL)
 	{
@@ -397,6 +393,7 @@ bool ModuleSceneIntro::Reset()
 	red_sensors.add(App->physics->CreateRectangle(180, 225, 35, 15, true, 0, false, 1.75f));
 	red_sensors.add(App->physics->CreateRectangle(340, 225, 35, 15, true, 0, false, 1.75f));
 	red_sensors.add(App->physics->CreateRectangle(380, 225, 35, 15, true, 0, false, 1.75f));
+
 	lives = 3;
 	score = 0;
 	num_red_sensors = 6;
@@ -436,6 +433,7 @@ update_status ModuleSceneIntro::Update()
 				item = item->next;
 			}
 			red_sensors.clear();
+
 			red_sensors.add(App->physics->CreateRectangle(58, 459, 35, 15, true, 0.6, false, 1.75f));
 			red_sensors.add(App->physics->CreateRectangle(460, 459, 35, 15, true, -0.6, false, 1.75f));
 			red_sensors.add(App->physics->CreateRectangle(140, 225, 35, 15, true, 0, false, 1.75f));
@@ -638,6 +636,7 @@ update_status ModuleSceneIntro::Update()
 		circles.getLast()->data->listener = this;
 		alreadycreated = true;
 	}
+	
 	else if (lives == 0) {
 
 		if (alreadyfinished == false)
@@ -694,12 +693,8 @@ update_status ModuleSceneIntro::Update()
 
 		alreadyfinished = true;
 		if (App->input->GetKey(SDL_SCANCODE_RETURN) == KEY_DOWN) {
-
-			Reset();
+			Reset();			
 		}
-
-
-
 	}
 
 
