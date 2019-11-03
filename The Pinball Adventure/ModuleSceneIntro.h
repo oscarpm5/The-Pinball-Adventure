@@ -56,6 +56,7 @@ public:
 	uint flipper_fx;
 	uint start_fx;
 	uint bounce_fx;
+	uint coins_fx;
 	p2Point<int> ray;
 
 	p2List<int> highscore_list;

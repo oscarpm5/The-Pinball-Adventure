@@ -503,6 +503,7 @@ void ModulePhysics::BeginContact(b2Contact* contact)
 	if (physB && physB->listener != NULL && App->scene_intro->frogs.findNode(physA))
 	{
 		App->scene_intro->score += 100;
+		App->audio->PlayFx(5, 0);
 		physB->listener->OnCollision(physB, physA);
 	}
 

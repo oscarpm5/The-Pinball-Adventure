@@ -41,6 +41,7 @@ bool ModuleSceneIntro::Start()
 	flipper_fx = App->audio->LoadFx("pinball/flipper.wav");
 	start_fx = App->audio->LoadFx("pinball/start.wav");
 	bounce_fx = App->audio->LoadFx("pinball/bounce.wav");
+	coins_fx = App->audio->LoadFx("pinball/coins.wav");
 
 	App->audio->PlayFx(start_fx, 0);
 	App->audio->PlayMusic("pinball/music.ogg", 3.0f);
