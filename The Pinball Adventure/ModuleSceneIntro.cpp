@@ -34,6 +34,8 @@ bool ModuleSceneIntro::Start()
 	right_flipper = App->textures->Load("pinball/rigth_flipper.png");
 	frog = App->textures->Load("pinball/froganim.png");
 	red_sensor = App->textures->Load("pinball/red_sensor.png");
+	left_bumper = App->textures->Load("pinball/left_bumper.png");
+	right_bumper = App->textures->Load("pinball/right_bumper.png");
 
 	bonus_fx = App->audio->LoadFx("pinball/bonus.wav");
 	flipper_fx = App->audio->LoadFx("pinball/flipper.wav");
@@ -241,9 +243,22 @@ bool ModuleSceneIntro::Start()
 
 	animations.add(froganim);
 
-	Animations* bumperanim = new Animations;
-	//TODO add the 2 frames of the bumper here
+	Animations* leftbumperanim = new Animations;
+	leftbumperanim->AddFrame(1, { 0,0,51,118 }, { 0,0 });
+	leftbumperanim->AddFrame(60, { 52,0,51,118 }, { 0,0 });
+	leftbumperanim->animationname = "left_bumper";
+	leftbumperanim->animationfinished = false;
+	leftbumperanim->animationloop = 0;
 
+	animations.add(leftbumperanim);
+	Animations* rightbumperanim = new Animations;
+	rightbumperanim->AddFrame(1, { 0,0,51,118 }, { 0,0 });
+	rightbumperanim->AddFrame(60, { 52,0,51,118 }, { 0,0 });
+	rightbumperanim->animationname = "right_bumper";
+	rightbumperanim->animationfinished = false;
+	rightbumperanim->animationloop = 0;
+
+	animations.add(rightbumperanim);
 	return ret;
 }
 
@@ -551,6 +566,35 @@ update_status ModuleSceneIntro::Update()
 		App->renderer->Blit(red_sensor, x, y, NULL, 1.0f, c->data->GetRotation());
 		c = c->next;
 	}
+
+
+	//Bumper animations---------------------------
+	//left
+	FrameInfo* frame1anim = animations.getFirst()->next->data->currentanimframe->data;
+	if (isleftbumping == true)
+	{
+		frame1anim = animations.getFirst()->next->data->StepAnimation();
+		if (animations.getFirst()->next->data->GetAnimationFinish())
+		{
+			isleftbumping = false;
+			animations.getFirst()->next->data->ResetAnimation();
+		}
+	}
+	App->renderer->Blit(left_bumper, 117, 475, &frame1anim->animationRect);
+
+	//right
+	FrameInfo* frame2anim = animations.getFirst()->next->next->data->currentanimframe->data;
+	if (isrightbumping == true)
+	{
+		frame2anim = animations.getFirst()->next->next->data->StepAnimation();
+		if (animations.getFirst()->next->next->data->GetAnimationFinish())
+		{
+			isrightbumping = false;
+			animations.getFirst()->next->next->data->ResetAnimation();
+		}
+	}
+	App->renderer->Blit(right_bumper, 352, 475, &frame2anim->animationRect);
+
 
 	// ray -----------------
 	if (ray_on == true)

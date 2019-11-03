@@ -47,6 +47,8 @@ public:
 	SDL_Texture* map;
 	SDL_Texture* left_flipper;
 	SDL_Texture* right_flipper;
+	SDL_Texture* right_bumper;
+	SDL_Texture* left_bumper;
 	SDL_Texture* kicker;
 	SDL_Texture* frog;
 	SDL_Texture* red_sensor;
@@ -60,6 +62,8 @@ public:
 	bool ray_on;
 	bool alreadycreated = false;
 	bool alreadyfinished = false;
+	bool isleftbumping = false;
+	bool isrightbumping = false;
 	int lives = 3;
 	int score = 0;
 	int highscore = 0;

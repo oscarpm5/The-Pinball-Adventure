@@ -508,6 +508,11 @@ void ModulePhysics::BeginContact(b2Contact* contact)
 
 	if (physB && physB->listener != NULL && (App->scene_intro->leftbumper == physA || App->scene_intro->rightbumper == physA))
 	{
+		if (App->scene_intro->leftbumper == physA)
+			App->scene_intro->isleftbumping = true;
+		if (App->scene_intro->rightbumper == physA)
+			App->scene_intro->isrightbumping = true;
+
 		App->audio->PlayFx(4, 0);
 		physB->listener->OnCollision(physB, physA);
 	}
