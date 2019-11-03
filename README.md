@@ -1,7 +1,9 @@
-# The-Pinball-Adventure
+﻿# The-Pinball-Adventure
 Original Game: https://www.classicgame.com/game/The+Pinball+Adventure
 
-Members of the project team: Oscar Pérez, Juan Hernández.
+Members of the project team: <br>
+Oscar Pérez: <https://github.com/oscarpm5><br>
+Juan Hernández:<https://github.com/juanha2><br>
 
 Project GitHub:https://github.com/oscarpm5/The-Pinball-Adventure
 
@@ -15,3 +17,7 @@ Project GitHub:https://github.com/oscarpm5/The-Pinball-Adventure
 
 ## Differences with the original game:
 In our project we are doing only the first level of the game instead of the original four different levels.
+Our project doesn't have the "bounty" mission system with extra rewards.
+
+
+All credit goes to the original authors of the game.
