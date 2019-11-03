@@ -68,6 +68,7 @@ public:
 	int lives = 3;
 	int score = 0;
 	int highscore = 0;
+	int num_red_sensors = 6;
 	char score_char[10];
 	char lives_char[10];
 	char highscore_char[10];

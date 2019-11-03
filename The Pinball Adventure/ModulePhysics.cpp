@@ -521,7 +521,10 @@ void ModulePhysics::BeginContact(b2Contact* contact)
 	if (physB && physB->listener != NULL && App->scene_intro->red_sensors.findNode(physA))
 	{
 		App->scene_intro->score += 100;
-		physB->listener->OnCollision(physB, physA);
+		physB->listener->OnCollision(physB, physA);	
+
+		App->scene_intro->num_red_sensors--;
+
 		App->scene_intro->red_sensors.del(App->scene_intro->red_sensors.findNode(physA));
 		physA->body->GetFixtureList()->SetSensor(true);
 	}
