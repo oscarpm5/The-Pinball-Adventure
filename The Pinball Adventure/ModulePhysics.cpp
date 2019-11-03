@@ -38,8 +38,8 @@ bool ModulePhysics::Start()
 	ground = world->CreateBody(&bd);
 
 	// LEFT FLIPPER
-	CreateFlipper(155, 630, 198, 631, 90, 18, 0); // Left == 0 
-	CreateFlipper(360, 630, 318, 637, 90, 18, 1); // Right == 1
+	CreateFlipper(155, 630, 198, 631, 95, 18, 0); // Left == 0 
+	CreateFlipper(360, 630, 318, 637, 95, 18, 1); // Right == 1
 	CreateKicker(507, 660, 507, 660, 30, 19);
 
 	return true;
@@ -85,6 +85,7 @@ PhysBody* ModulePhysics::CreateFlipper(int x, int y, int x1, int y1, int width, 
 	b2BodyDef flipper;
 	flipper.type = b2_dynamicBody;
 	flipper.position.Set(PIXEL_TO_METERS(x1), PIXEL_TO_METERS(y1));
+	flipper.allowSleep = false;
 
 	b2Body* flipper_body = world->CreateBody(&flipper);
 	b2PolygonShape flipper_1;

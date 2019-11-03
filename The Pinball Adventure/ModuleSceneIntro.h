@@ -3,6 +3,7 @@
 #include "p2List.h"
 #include "p2Point.h"
 #include "Globals.h"
+#include "Animations.h"
 
 class PhysBody;
 
@@ -32,6 +33,8 @@ public:
 	p2List<PhysBody*> frogs;
 	p2List<PhysBody*> red_sensors;
 	p2List<PhysBody*> chains;
+
+	p2List<Animations*> animations;
 
 	PhysBody* sensor;
 	PhysBody* leftbumper;

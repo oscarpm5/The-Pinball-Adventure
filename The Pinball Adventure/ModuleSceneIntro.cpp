@@ -32,7 +32,7 @@ bool ModuleSceneIntro::Start()
 	map = App->textures->Load("pinball/map.png");
 	left_flipper = App->textures->Load("pinball/left_flipper.png");
 	right_flipper = App->textures->Load("pinball/rigth_flipper.png");
-	frog = App->textures->Load("pinball/frog.png");
+	frog = App->textures->Load("pinball/froganim.png");
 	red_sensor = App->textures->Load("pinball/red_sensor.png");
 
 	bonus_fx = App->audio->LoadFx("pinball/bonus.wav");
@@ -45,7 +45,7 @@ bool ModuleSceneIntro::Start()
 	kicker = App->textures->Load("pinball/kicker.png");
 
 	App->fonts->Load("pinball/font.png", "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz.:;[]0123456789           ", 3);
-	sensor = App->physics->CreateRectangle(SCREEN_WIDTH / 2, SCREEN_HEIGHT, SCREEN_WIDTH, 3, true, 0, true);
+	sensor = App->physics->CreateRectangle(SCREEN_WIDTH / 2, SCREEN_HEIGHT, SCREEN_WIDTH, 10, true, 0, true);
 
 	int map[176] = {
 		527, 669,
@@ -201,13 +201,13 @@ bool ModuleSceneIntro::Start()
 	chains.add(App->physics->CreateChain(0, 0, left_bumper, 8, 0.3f));
 	chains.add(App->physics->CreateChain(0, 0, right_bumper, 8, 0.3f));
 
-	frogs.add(App->physics->CreateCircle(80, 318, 20, false, 1.0f));//left center frog
-	frogs.add(App->physics->CreateCircle(205, 292, 20, false, 1.0f));//left upper frog
-	frogs.add(App->physics->CreateCircle(150, 370, 20, false, 1.0f));//left lower frog
+	frogs.add(App->physics->CreateCircle(80, 318, 20, false, 0.9f));//left center frog
+	frogs.add(App->physics->CreateCircle(205, 292, 20, false, 0.9f));//left upper frog
+	frogs.add(App->physics->CreateCircle(150, 370, 20, false, 0.9f));//left lower frog
 
-	frogs.add(App->physics->CreateCircle(440, 318, 20, false, 1.0f));//right center frog
-	frogs.add(App->physics->CreateCircle(320, 292, 20, false, 1.0f));//right upper frog
-	frogs.add(App->physics->CreateCircle(375, 370, 20, false, 1.0f));//right lower frog
+	frogs.add(App->physics->CreateCircle(440, 318, 20, false, 0.9f));//right center frog
+	frogs.add(App->physics->CreateCircle(320, 292, 20, false, 0.9f));//right upper frog
+	frogs.add(App->physics->CreateCircle(375, 370, 20, false, 0.9f));//right lower frog
 
 	circles.add(App->physics->CreateCircle(508, 502, 10, true, -1, true)); //first ball
 	circles.getLast()->data->listener = this;
@@ -219,8 +219,8 @@ bool ModuleSceneIntro::Start()
 	red_sensors.add(App->physics->CreateRectangle(340, 225, 35, 15, true, 0, false, 1.75f));
 	red_sensors.add(App->physics->CreateRectangle(380, 225, 35, 15, true, 0, false, 1.75f));
 
-	leftbumper = App->physics->CreateRectangle(144, 535, 80, 10, true, 1.06f);
-	rightbumper = App->physics->CreateRectangle(376, 535, 80, 10, true, 2.06f);
+	leftbumper = App->physics->CreateRectangle(144, 535, 80, 10, true, 1.06f, true);
+	rightbumper = App->physics->CreateRectangle(376, 535, 80, 10, true, 2.06f, true);
 
 
 
@@ -229,6 +229,20 @@ bool ModuleSceneIntro::Start()
 	highscore_list.add(0);
 	highscore_list.add(0);
 
+	//inicialize animations
+
+	Animations* froganim = new Animations;
+	froganim->AddFrame(120, { 0,0,72,38 }, { 0,0 });
+	froganim->AddFrame(120, { 0,39,72,38 }, { 0,0 });
+	froganim->AddFrame(120, { 0,78,72,38 }, { 0,0 });
+	froganim->animationname = "frog";
+	froganim->animationfinished = false;
+	froganim->animationloop = 1;
+
+	animations.add(froganim);
+
+	Animations* bumperanim = new Animations;
+	//TODO add the 2 frames of the bumper here
 
 	return ret;
 }
@@ -352,7 +366,7 @@ bool ModuleSceneIntro::Reset()
 {
 	App->audio->PlayFx(3, 0);
 	circles.add(App->physics->CreateCircle(508, 502, 10, true, -1, true));
-	
+
 	p2List_item<PhysBody*>* item = red_sensors.getFirst();
 	while (item != NULL)
 	{
@@ -370,6 +384,15 @@ bool ModuleSceneIntro::Reset()
 	lives = 3;
 	score = 0;
 	alreadyfinished = false;
+
+	//Resets all the animations
+	p2List_item<Animations*>* animitem = animations.getFirst();
+
+	while (animitem != NULL)
+	{
+		animitem->data->ResetAnimation();
+		animitem = animitem->next;
+	}
 	return true;
 }
 
@@ -460,7 +483,9 @@ update_status ModuleSceneIntro::Update()
 		int x, y;
 		c->data->GetPosition(x, y);
 
-		App->renderer->Blit(frog, x - 15, y, NULL, 1.0f, c->data->GetRotation());
+		FrameInfo* frame = animations.getFirst()->data->StepAnimation();
+
+		App->renderer->Blit(frog, x - 15, y, &frame->animationRect, 1.0f, c->data->GetRotation());
 		c = c->next;
 	}
 
@@ -625,7 +650,7 @@ void ModuleSceneIntro::OnCollision(PhysBody* bodyA, PhysBody* bodyB)
 	}
 	if (bodyB == rightbumper || bodyB == leftbumper)
 	{
-		bodyA->body->ApplyLinearImpulse({ 0,-0.025f }, bodyA->body->GetWorldCenter(), true);
+		bodyA->body->ApplyLinearImpulse({ 0,-0.015f }, bodyA->body->GetWorldCenter(), true);
 	}
 }
 
