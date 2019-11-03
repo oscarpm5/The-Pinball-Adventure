@@ -155,8 +155,8 @@ bool ModuleSceneIntro::Start()
 		441, 601,
 		441, 466,
 		431, 475,
-		431, 581,
-		365, 625
+		431, 576,
+		365, 620
 	};
 
 	int top_platform[42] = {
@@ -522,7 +522,7 @@ update_status ModuleSceneIntro::Update()
 	{
 		int x, y;
 		c->data->GetPosition(x, y);
-		App->renderer->Blit(left_flipper, x - 8, y - 4, NULL, 1.0f, c->data->GetRotation());
+		App->renderer->Blit(left_flipper, x - 8, y - 6, NULL, 1.0f, c->data->GetRotation());
 		if (ray_on)
 		{
 			int hit = c->data->RayCast(ray.x, ray.y, mouse.x, mouse.y, normal.x, normal.y);
@@ -538,7 +538,7 @@ update_status ModuleSceneIntro::Update()
 	{
 		int x, y;
 		c->data->GetPosition(x, y);
-		App->renderer->Blit(right_flipper, x - 4, y - 4, NULL, 1.0f, c->data->GetRotation());
+		App->renderer->Blit(right_flipper, x - 6, y - 4, NULL, 1.0f, c->data->GetRotation());
 		if (ray_on)
 		{
 			int hit = c->data->RayCast(ray.x, ray.y, mouse.x, mouse.y, normal.x, normal.y);

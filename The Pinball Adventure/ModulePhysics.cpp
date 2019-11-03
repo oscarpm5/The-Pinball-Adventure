@@ -38,8 +38,8 @@ bool ModulePhysics::Start()
 	ground = world->CreateBody(&bd);
 
 	// LEFT FLIPPER
-	CreateFlipper(155, 630, 198, 631, 95, 18, 0); // Left == 0 
-	CreateFlipper(360, 630, 318, 637, 95, 18, 1); // Right == 1
+	CreateFlipper(163, 635, 198, 640, 95, 20, 0); // Left == 0 
+	CreateFlipper(355, 637, 316, 640, 95, 20, 1); // Right == 1
 	CreateKicker(507, 660, 507, 660, 30, 19);
 
 	return true;
