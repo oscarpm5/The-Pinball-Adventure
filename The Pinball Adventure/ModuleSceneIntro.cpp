@@ -430,8 +430,6 @@ update_status ModuleSceneIntro::Update()
 		if (App->input->GetKey(SDL_SCANCODE_RETURN) == KEY_DOWN) {
 			enter_game = true;
 
-			circles.add(App->physics->CreateCircle(508, 482, 10, true, -1, true)); //first ball
-			circles.getLast()->data->listener = this;
 			App->audio->PlayFx(start_fx, 0);
 			App->audio->PlayMusic("pinball/music.ogg", 3.0f);
 		}
@@ -658,7 +656,7 @@ update_status ModuleSceneIntro::Update()
 
 		BlitScore();
 
-		if ((lives == 2 || lives == 1) && alreadycreated == false) {
+		if (lives >0 && alreadycreated == false) {
 
 			circles.add(App->physics->CreateCircle(508, 502, 10, true, -1, true));
 			circles.getLast()->data->listener = this;
