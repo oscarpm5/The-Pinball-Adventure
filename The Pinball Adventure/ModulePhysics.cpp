@@ -5,6 +5,7 @@
 #include "ModulePhysics.h"
 #include "p2Point.h"
 #include "math.h"
+#include "ModuleAudio.h"
 #include "ModuleSceneIntro.h"
 
 #ifdef _DEBUG
@@ -501,6 +502,12 @@ void ModulePhysics::BeginContact(b2Contact* contact)
 	if (physB && physB->listener != NULL && App->scene_intro->frogs.findNode(physA))
 	{
 		App->scene_intro->score += 100;
+		physB->listener->OnCollision(physB, physA);
+	}
+
+	if (physB && physB->listener != NULL && (App->scene_intro->leftbumper==physA || App->scene_intro->rightbumper == physA))
+	{
+		App->audio->PlayFx(4, 0);
 		physB->listener->OnCollision(physB, physA);
 	}
 

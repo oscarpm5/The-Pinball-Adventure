@@ -38,6 +38,7 @@ bool ModuleSceneIntro::Start()
 	bonus_fx = App->audio->LoadFx("pinball/bonus.wav");
 	flipper_fx = App->audio->LoadFx("pinball/flipper.wav");
 	start_fx = App->audio->LoadFx("pinball/start.wav");
+	bounce_fx = App->audio->LoadFx("pinball/bounce.wav");
 
 	App->audio->PlayFx(start_fx, 0);
 	App->audio->PlayMusic("pinball/music.ogg", 3.0f);
@@ -221,7 +222,7 @@ bool ModuleSceneIntro::Start()
 	leftbumper = App->physics->CreateRectangle(144, 535, 80, 10, true, 1.06f);
 	rightbumper = App->physics->CreateRectangle(376, 535, 80, 10, true, 2.06f);
 
-	
+
 
 	//Inicializes the highscore table with 3 0's to avoid errors
 	highscore_list.add(0);
@@ -272,7 +273,7 @@ bool ModuleSceneIntro::CleanUp()
 		item = item->next;
 	}
 	kickers.clear();
-	
+
 	//unload Flippers
 	item = right_flippers.getFirst();
 	while (item != NULL)
@@ -349,6 +350,7 @@ bool ModuleSceneIntro::CleanUp()
 }
 bool ModuleSceneIntro::Reset()
 {
+	App->audio->PlayFx(3, 0);
 	circles.add(App->physics->CreateCircle(508, 502, 10, true, -1, true));
 	lives = 3;
 	score = 0;
@@ -586,7 +588,7 @@ update_status ModuleSceneIntro::Update()
 
 		alreadyfinished = true;
 		if (App->input->GetKey(SDL_SCANCODE_RETURN) == KEY_DOWN) {
-			
+
 			Reset();
 		}
 
