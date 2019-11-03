@@ -221,7 +221,7 @@ bool ModuleSceneIntro::Start()
 	leftbumper = App->physics->CreateRectangle(144, 535, 80, 10, true, 1.06f);
 	rightbumper = App->physics->CreateRectangle(376, 535, 80, 10, true, 2.06f);
 
-
+	
 
 	//Inicializes the highscore table with 3 0's to avoid errors
 	highscore_list.add(0);
@@ -272,7 +272,7 @@ bool ModuleSceneIntro::CleanUp()
 		item = item->next;
 	}
 	kickers.clear();
-
+	
 	//unload Flippers
 	item = right_flippers.getFirst();
 	while (item != NULL)
@@ -349,6 +349,7 @@ bool ModuleSceneIntro::CleanUp()
 }
 bool ModuleSceneIntro::Reset()
 {
+	circles.add(App->physics->CreateCircle(508, 502, 10, true, -1, true));
 	lives = 3;
 	score = 0;
 	alreadyfinished = false;
@@ -534,6 +535,9 @@ update_status ModuleSceneIntro::Update()
 		if (alreadyfinished == false)
 			highscore_list.add(score);
 
+		// Sets flippers to original pos ----------------
+		App->physics->flipper_joint_left->EnableMotor(false);
+		App->physics->flipper_joint_right->EnableMotor(false);
 
 		int first;
 		int second;
@@ -582,6 +586,7 @@ update_status ModuleSceneIntro::Update()
 
 		alreadyfinished = true;
 		if (App->input->GetKey(SDL_SCANCODE_RETURN) == KEY_DOWN) {
+			
 			Reset();
 		}
 
