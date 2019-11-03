@@ -52,6 +52,7 @@ public:
 	SDL_Texture* kicker;
 	SDL_Texture* frog;
 	SDL_Texture* red_sensor;
+	SDL_Texture* intro;
 	uint bonus_fx;
 	uint flipper_fx;
 	uint start_fx;
@@ -79,5 +80,5 @@ public:
 	char top2score_char[10];
 	char top3score_char[10];
 
-
+	bool enter_game = false;
 };

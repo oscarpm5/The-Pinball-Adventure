@@ -36,15 +36,13 @@ bool ModuleSceneIntro::Start()
 	red_sensor = App->textures->Load("pinball/red_sensor.png");
 	left_bumper = App->textures->Load("pinball/left_bumper.png");
 	right_bumper = App->textures->Load("pinball/right_bumper.png");
+	intro = App->textures->Load("pinball/title.png");
 
 	bonus_fx = App->audio->LoadFx("pinball/bonus.wav");
 	flipper_fx = App->audio->LoadFx("pinball/flipper.wav");
 	start_fx = App->audio->LoadFx("pinball/start.wav");
 	bounce_fx = App->audio->LoadFx("pinball/bounce.wav");
-	coins_fx = App->audio->LoadFx("pinball/coins.wav");
-
-	App->audio->PlayFx(start_fx, 0);
-	App->audio->PlayMusic("pinball/music.ogg", 3.0f);
+	coins_fx = App->audio->LoadFx("pinball/coins.wav");	
 	kicker = App->textures->Load("pinball/kicker.png");
 
 	App->fonts->Load("pinball/font.png", "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz.:;[]0123456789           ", 3);
@@ -211,9 +209,6 @@ bool ModuleSceneIntro::Start()
 	frogs.add(App->physics->CreateCircle(440, 318, 20, false, 0.9f));//right center frog
 	frogs.add(App->physics->CreateCircle(320, 292, 20, false, 0.9f));//right upper frog
 	frogs.add(App->physics->CreateCircle(375, 370, 20, false, 0.9f));//right lower frog
-
-	circles.add(App->physics->CreateCircle(508, 502, 10, true, -1, true)); //first ball
-	circles.getLast()->data->listener = this;
 
 	red_sensors.add(App->physics->CreateRectangle(58, 459, 35, 15, true, 0.6, false, 1.75f));
 	red_sensors.add(App->physics->CreateRectangle(460, 459, 35, 15, true, -0.6, false, 1.75f));
@@ -413,291 +408,321 @@ bool ModuleSceneIntro::Reset()
 // Update: draw background
 update_status ModuleSceneIntro::Update()
 {
-	SDL_Rect rect;
-	rect.x = 0;
-	rect.y = 0;
-	rect.w = 768;
-	rect.h = 768;
+	if (!enter_game) {
 
-	App->renderer->Blit(map, 0, 0, &rect);
-	
-	if (lives != 0) {
-		
-		if (num_red_sensors == 0) {
-			lives++;
+		SDL_Rect title;
+		title.x = 0;
+		title.y = 0;
+		title.w = 740;
+		title.h = 333;
 
-			p2List_item<PhysBody*>* item = red_sensors.getFirst();
-			while (item != NULL)
-			{
-				App->physics->world->DestroyBody(item->data->body);
-				item = item->next;
-			}
-			red_sensors.clear();
+		SDL_Rect background;
+		background.x = 0;
+		background.y = 0;
+		background.w = SCREEN_WIDTH;
+		background.h = SCREEN_HEIGHT;
 
-			red_sensors.add(App->physics->CreateRectangle(58, 459, 35, 15, true, 0.6, false, 1.75f));
-			red_sensors.add(App->physics->CreateRectangle(460, 459, 35, 15, true, -0.6, false, 1.75f));
-			red_sensors.add(App->physics->CreateRectangle(140, 225, 35, 15, true, 0, false, 1.75f));
-			red_sensors.add(App->physics->CreateRectangle(180, 225, 35, 15, true, 0, false, 1.75f));
-			red_sensors.add(App->physics->CreateRectangle(340, 225, 35, 15, true, 0, false, 1.75f));
-			red_sensors.add(App->physics->CreateRectangle(380, 225, 35, 15, true, 0, false, 1.75f));
-			num_red_sensors = 6;
-		}
+		App->renderer->DrawQuad(background, 0, 0, 0, 255, true);
+		App->renderer->Blit(intro, 10, 100, &title);
+		App->fonts->BlitText(100, 500, 0, "Start   [enter]", 5.0F);
+		App->fonts->BlitText(100, 600, 0, "Exit    [escape]", 5.0F);
 
-		if (App->input->GetKey(SDL_SCANCODE_SPACE) == KEY_DOWN)
-		{
-			ray_on = !ray_on;
-			ray.x = App->input->GetMouseX();
-			ray.y = App->input->GetMouseY();
-		}
-
-		if (App->input->GetKey(SDL_SCANCODE_1) == KEY_DOWN)
-		{
-			circles.add(App->physics->CreateCircle(App->input->GetMouseX(), App->input->GetMouseY(), 10, true, -1, true));
-			circles.getLast()->data->listener = this;
-		}
-
-		if (App->input->GetKey(SDL_SCANCODE_2) == KEY_DOWN)
-		{
-			boxes.add(App->physics->CreateRectangle(App->input->GetMouseX(), App->input->GetMouseY(), 100, 50, true));
-		}
-
-
-		// Flippers' Motors Logic -------------------------------------
-
-		if (App->input->GetKey(SDL_SCANCODE_LEFT) == KEY_DOWN || App->input->GetKey(SDL_SCANCODE_RIGHT) == KEY_DOWN)
-			App->audio->PlayFx(App->scene_intro->flipper_fx, 0);
-
-		if (App->input->GetKey(SDL_SCANCODE_LEFT) == KEY_REPEAT)
-		{
-
-			App->physics->flipper_joint_left->EnableMotor(true);
-		}
-
-		if (App->input->GetKey(SDL_SCANCODE_LEFT) == KEY_UP)
-		{
-			App->physics->flipper_joint_left->EnableMotor(false);
-		}
-
-		if (App->input->GetKey(SDL_SCANCODE_RIGHT) == KEY_REPEAT)
-		{
-			App->physics->flipper_joint_right->EnableMotor(true);
-		}
-
-		if (App->input->GetKey(SDL_SCANCODE_RIGHT) == KEY_UP)
-		{
-			App->physics->flipper_joint_right->EnableMotor(false);
-		}
-
-		//kickers Motors Logic-----------------------------------------
-
-		if (App->input->GetKey(SDL_SCANCODE_DOWN) == KEY_REPEAT)
-		{
-			App->physics->kicker_joint->SetMotorSpeed(2);
-		}
-		else
-		{
-			App->physics->kicker_joint->SetMotorSpeed(-15);
-		}
-	}
-
-
-	// Prepare for raycast ------------------------------------------------------
-
-	iPoint mouse;
-	mouse.x = App->input->GetMouseX();
-	mouse.y = App->input->GetMouseY();
-	int ray_hit = ray.DistanceTo(mouse);
-
-	fVector normal(0.0f, 0.0f);
-
-	// All draw functions ------------------------------------------------------
-	p2List_item<PhysBody*>* c = frogs.getFirst();
-
-	while (c != NULL)
-	{
-		int x, y;
-		c->data->GetPosition(x, y);
-
-		FrameInfo* frame = animations.getFirst()->data->StepAnimation();
-
-		App->renderer->Blit(frog, x - 15, y, &frame->animationRect, 1.0f, c->data->GetRotation());
-		c = c->next;
-	}
-
-	c = circles.getFirst();
-
-	while (c != NULL)
-	{
-		int x, y;
-		c->data->GetPosition(x, y);
-
-		App->renderer->Blit(ball, x, y, NULL, 1.0f, c->data->GetRotation());
-		c = c->next;
-	}
-
-	c = left_flippers.getFirst();
-
-	while (c != NULL)
-	{
-		int x, y;
-		c->data->GetPosition(x, y);
-		App->renderer->Blit(left_flipper, x - 8, y - 6, NULL, 1.0f, c->data->GetRotation());
-		if (ray_on)
-		{
-			int hit = c->data->RayCast(ray.x, ray.y, mouse.x, mouse.y, normal.x, normal.y);
-			if (hit >= 0)
-				ray_hit = hit;
-		}
-		c = c->next;
-	}
-
-	c = right_flippers.getFirst();
-
-	while (c != NULL)
-	{
-		int x, y;
-		c->data->GetPosition(x, y);
-		App->renderer->Blit(right_flipper, x - 6, y - 4, NULL, 1.0f, c->data->GetRotation());
-		if (ray_on)
-		{
-			int hit = c->data->RayCast(ray.x, ray.y, mouse.x, mouse.y, normal.x, normal.y);
-			if (hit >= 0)
-				ray_hit = hit;
-		}
-		c = c->next;
-	}
-
-	c = kickers.getFirst();
-	while (c != NULL)
-	{
-		int x, y;
-		c->data->GetPosition(x, y);
-
-		App->renderer->Blit(kicker, x, y, NULL, 1.0f, c->data->GetRotation());
-		c = c->next;
-	}
-
-	c = red_sensors.getFirst();
-	while (c != NULL)
-	{
-		int x, y;
-		c->data->GetPosition(x, y);
-
-		App->renderer->Blit(red_sensor, x, y, NULL, 1.0f, c->data->GetRotation());
-		c = c->next;
-	}
-
-
-	//Bumper animations---------------------------
-	//left
-	FrameInfo* frame1anim = animations.getFirst()->next->data->currentanimframe->data;
-	if (isleftbumping == true)
-	{
-		frame1anim = animations.getFirst()->next->data->StepAnimation();
-		if (animations.getFirst()->next->data->GetAnimationFinish())
-		{
-			isleftbumping = false;
-			animations.getFirst()->next->data->ResetAnimation();
-		}
-	}
-	App->renderer->Blit(left_bumper, 117, 475, &frame1anim->animationRect);
-
-	//right
-	FrameInfo* frame2anim = animations.getFirst()->next->next->data->currentanimframe->data;
-	if (isrightbumping == true)
-	{
-		frame2anim = animations.getFirst()->next->next->data->StepAnimation();
-		if (animations.getFirst()->next->next->data->GetAnimationFinish())
-		{
-			isrightbumping = false;
-			animations.getFirst()->next->next->data->ResetAnimation();
-		}
-	}
-	App->renderer->Blit(right_bumper, 352, 475, &frame2anim->animationRect);
-
-
-	// ray -----------------
-	if (ray_on == true)
-	{
-		fVector destination(mouse.x - ray.x, mouse.y - ray.y);
-		destination.Normalize();
-		destination *= ray_hit;
-
-		App->renderer->DrawLine(ray.x, ray.y, ray.x + destination.x, ray.y + destination.y, 255, 255, 255);
-
-		if (normal.x != 0.0f)
-			App->renderer->DrawLine(ray.x + destination.x, ray.y + destination.y, ray.x + destination.x + normal.x * 25.0f, ray.y + destination.y + normal.y * 25.0f, 100, 255, 100);
-	}
-
-	BlitScore();
-	if ((lives == 2 || lives == 1) && alreadycreated == false) {
-
-		circles.add(App->physics->CreateCircle(508, 502, 10, true, -1, true));
-		circles.getLast()->data->listener = this;
-		alreadycreated = true;
-	}
-	
-	else if (lives == 0) {
-
-		if (alreadyfinished == false)
-		{
-			highscore_list.add(score);
-			previous_score = score;
-		}
-
-
-		// Sets flippers to original pos ----------------
-		App->physics->flipper_joint_left->EnableMotor(false);
-		App->physics->flipper_joint_right->EnableMotor(false);
-
-		int first;
-		int second;
-		int third;
-		GetTopHighScores(first, second, third);
-		highscore = first;
-
-		sprintf_s(top1score_char, 10, "%d", first);
-		sprintf_s(top2score_char, 10, "%d", second);
-		sprintf_s(top3score_char, 10, "%d", third);
-
-
-		SDL_Rect black_square;
-		black_square.w = SCREEN_WIDTH;
-		black_square.h = SCREEN_HEIGHT;
-		black_square.x = (SCREEN_WIDTH * 0.5) - (black_square.w * 0.5);
-		black_square.y = (SCREEN_HEIGHT * 0.5) - (black_square.h * 0.5);
-
-		App->renderer->DrawQuad(black_square, 0, 0, 0, 230, true, false);
-
-		App->fonts->BlitText(230, 100, 0, "GAME OVER", 6.0f);
-		App->fonts->BlitText(280, 600, 0, "Start Again", 2.0f);
-		App->fonts->BlitText(430, 602, 0, "[Enter]", 1.5f);
-		App->fonts->BlitText(280, 650, 0, "Exit", 2.0f);
-		App->fonts->BlitText(422, 652, 0, "[Escape]", 1.5f);
-
-		//your score
-		App->fonts->BlitText(300, 175, 0, "YOUR SCORE:", 2.0f);
-		App->fonts->BlitText(445, 175, 0, score_char, 2.0f);
-
-		//highscores
-		App->fonts->BlitText(285, 280, 0, "HIGSCORES", 3.5f);
-
-		//1
-		App->fonts->BlitText(250, 350, 0, "1. ", 2.5f);
-		App->fonts->BlitText(280, 350, 0, top1score_char, 2.5f);
-
-		//2
-		App->fonts->BlitText(250, 410, 0, "2. ", 2.5f);
-		App->fonts->BlitText(280, 410, 0, top2score_char, 2.5f);
-
-		//3
-		App->fonts->BlitText(250, 470, 0, "3. ", 2.5f);
-		App->fonts->BlitText(280, 470, 0, top3score_char, 2.5f);
-
-
-		alreadyfinished = true;
 		if (App->input->GetKey(SDL_SCANCODE_RETURN) == KEY_DOWN) {
-			Reset();			
+			enter_game = true;
+
+			circles.add(App->physics->CreateCircle(508, 482, 10, true, -1, true)); //first ball
+			circles.getLast()->data->listener = this;
+			App->audio->PlayFx(start_fx, 0);
+			App->audio->PlayMusic("pinball/music.ogg", 3.0f);
+		}
+
+	}
+
+	else if (enter_game) {
+
+		SDL_Rect rect;
+		rect.x = 0;
+		rect.y = 0;
+		rect.w = 768;
+		rect.h = 768;
+
+		App->renderer->Blit(map, 0, 0, &rect);
+
+		if (lives != 0) {
+
+			if (num_red_sensors == 0) {
+				lives++;
+
+				p2List_item<PhysBody*>* item = red_sensors.getFirst();
+				while (item != NULL)
+				{
+					App->physics->world->DestroyBody(item->data->body);
+					item = item->next;
+				}
+				red_sensors.clear();
+
+				red_sensors.add(App->physics->CreateRectangle(58, 459, 35, 15, true, 0.6, false, 1.75f));
+				red_sensors.add(App->physics->CreateRectangle(460, 459, 35, 15, true, -0.6, false, 1.75f));
+				red_sensors.add(App->physics->CreateRectangle(140, 225, 35, 15, true, 0, false, 1.75f));
+				red_sensors.add(App->physics->CreateRectangle(180, 225, 35, 15, true, 0, false, 1.75f));
+				red_sensors.add(App->physics->CreateRectangle(340, 225, 35, 15, true, 0, false, 1.75f));
+				red_sensors.add(App->physics->CreateRectangle(380, 225, 35, 15, true, 0, false, 1.75f));
+				num_red_sensors = 6;
+			}
+
+			if (App->input->GetKey(SDL_SCANCODE_SPACE) == KEY_DOWN)
+			{
+				ray_on = !ray_on;
+				ray.x = App->input->GetMouseX();
+				ray.y = App->input->GetMouseY();
+			}
+
+			if (App->input->GetKey(SDL_SCANCODE_1) == KEY_DOWN)
+			{
+				circles.add(App->physics->CreateCircle(App->input->GetMouseX(), App->input->GetMouseY(), 10, true, -1, true));
+				circles.getLast()->data->listener = this;
+			}
+
+			if (App->input->GetKey(SDL_SCANCODE_2) == KEY_DOWN)
+			{
+				boxes.add(App->physics->CreateRectangle(App->input->GetMouseX(), App->input->GetMouseY(), 100, 50, true));
+			}
+
+
+			// Flippers' Motors Logic -------------------------------------
+
+			if (App->input->GetKey(SDL_SCANCODE_LEFT) == KEY_DOWN || App->input->GetKey(SDL_SCANCODE_RIGHT) == KEY_DOWN)
+				App->audio->PlayFx(App->scene_intro->flipper_fx, 0);
+
+			if (App->input->GetKey(SDL_SCANCODE_LEFT) == KEY_REPEAT)
+			{
+
+				App->physics->flipper_joint_left->EnableMotor(true);
+			}
+
+			if (App->input->GetKey(SDL_SCANCODE_LEFT) == KEY_UP)
+			{
+				App->physics->flipper_joint_left->EnableMotor(false);
+			}
+
+			if (App->input->GetKey(SDL_SCANCODE_RIGHT) == KEY_REPEAT)
+			{
+				App->physics->flipper_joint_right->EnableMotor(true);
+			}
+
+			if (App->input->GetKey(SDL_SCANCODE_RIGHT) == KEY_UP)
+			{
+				App->physics->flipper_joint_right->EnableMotor(false);
+			}
+
+			//kickers Motors Logic-----------------------------------------
+
+			if (App->input->GetKey(SDL_SCANCODE_DOWN) == KEY_REPEAT)
+			{
+				App->physics->kicker_joint->SetMotorSpeed(2);
+			}
+			else
+			{
+				App->physics->kicker_joint->SetMotorSpeed(-15);
+			}
+		}
+
+
+		// Prepare for raycast ------------------------------------------------------
+
+		iPoint mouse;
+		mouse.x = App->input->GetMouseX();
+		mouse.y = App->input->GetMouseY();
+		int ray_hit = ray.DistanceTo(mouse);
+
+		fVector normal(0.0f, 0.0f);
+
+		// All draw functions ------------------------------------------------------
+		p2List_item<PhysBody*>* c = frogs.getFirst();
+
+		while (c != NULL)
+		{
+			int x, y;
+			c->data->GetPosition(x, y);
+
+			FrameInfo* frame = animations.getFirst()->data->StepAnimation();
+
+			App->renderer->Blit(frog, x - 15, y, &frame->animationRect, 1.0f, c->data->GetRotation());
+			c = c->next;
+		}
+
+		c = circles.getFirst();
+
+		while (c != NULL)
+		{
+			int x, y;
+			c->data->GetPosition(x, y);
+
+			App->renderer->Blit(ball, x, y, NULL, 1.0f, c->data->GetRotation());
+			c = c->next;
+		}
+
+		c = left_flippers.getFirst();
+
+		while (c != NULL)
+		{
+			int x, y;
+			c->data->GetPosition(x, y);
+			App->renderer->Blit(left_flipper, x - 8, y - 6, NULL, 1.0f, c->data->GetRotation());
+			if (ray_on)
+			{
+				int hit = c->data->RayCast(ray.x, ray.y, mouse.x, mouse.y, normal.x, normal.y);
+				if (hit >= 0)
+					ray_hit = hit;
+			}
+			c = c->next;
+		}
+
+		c = right_flippers.getFirst();
+
+		while (c != NULL)
+		{
+			int x, y;
+			c->data->GetPosition(x, y);
+			App->renderer->Blit(right_flipper, x - 6, y - 4, NULL, 1.0f, c->data->GetRotation());
+			if (ray_on)
+			{
+				int hit = c->data->RayCast(ray.x, ray.y, mouse.x, mouse.y, normal.x, normal.y);
+				if (hit >= 0)
+					ray_hit = hit;
+			}
+			c = c->next;
+		}
+
+		c = kickers.getFirst();
+		while (c != NULL)
+		{
+			int x, y;
+			c->data->GetPosition(x, y);
+
+			App->renderer->Blit(kicker, x, y, NULL, 1.0f, c->data->GetRotation());
+			c = c->next;
+		}
+
+		c = red_sensors.getFirst();
+		while (c != NULL)
+		{
+			int x, y;
+			c->data->GetPosition(x, y);
+
+			App->renderer->Blit(red_sensor, x, y, NULL, 1.0f, c->data->GetRotation());
+			c = c->next;
+		}
+
+
+		//Bumper animations---------------------------
+		//left
+		FrameInfo* frame1anim = animations.getFirst()->next->data->currentanimframe->data;
+		if (isleftbumping == true)
+		{
+			frame1anim = animations.getFirst()->next->data->StepAnimation();
+			if (animations.getFirst()->next->data->GetAnimationFinish())
+			{
+				isleftbumping = false;
+				animations.getFirst()->next->data->ResetAnimation();
+			}
+		}
+		App->renderer->Blit(left_bumper, 117, 475, &frame1anim->animationRect);
+
+		//right
+		FrameInfo* frame2anim = animations.getFirst()->next->next->data->currentanimframe->data;
+		if (isrightbumping == true)
+		{
+			frame2anim = animations.getFirst()->next->next->data->StepAnimation();
+			if (animations.getFirst()->next->next->data->GetAnimationFinish())
+			{
+				isrightbumping = false;
+				animations.getFirst()->next->next->data->ResetAnimation();
+			}
+		}
+		App->renderer->Blit(right_bumper, 352, 475, &frame2anim->animationRect);
+
+
+		// ray -----------------
+		if (ray_on == true)
+		{
+			fVector destination(mouse.x - ray.x, mouse.y - ray.y);
+			destination.Normalize();
+			destination *= ray_hit;
+
+			App->renderer->DrawLine(ray.x, ray.y, ray.x + destination.x, ray.y + destination.y, 255, 255, 255);
+
+			if (normal.x != 0.0f)
+				App->renderer->DrawLine(ray.x + destination.x, ray.y + destination.y, ray.x + destination.x + normal.x * 25.0f, ray.y + destination.y + normal.y * 25.0f, 100, 255, 100);
+		}
+
+		BlitScore();
+
+		if ((lives == 2 || lives == 1) && alreadycreated == false) {
+
+			circles.add(App->physics->CreateCircle(508, 502, 10, true, -1, true));
+			circles.getLast()->data->listener = this;
+			alreadycreated = true;
+		}
+
+		else if (lives == 0) {
+
+			if (alreadyfinished == false)
+				highscore_list.add(score);
+
+			// Sets flippers to original pos ----------------
+			App->physics->flipper_joint_left->EnableMotor(false);
+			App->physics->flipper_joint_right->EnableMotor(false);
+
+			int first;
+			int second;
+			int third;
+			GetTopHighScores(first, second, third);
+			highscore = first;
+
+			sprintf_s(top1score_char, 10, "%d", first);
+			sprintf_s(top2score_char, 10, "%d", second);
+			sprintf_s(top3score_char, 10, "%d", third);
+
+
+			SDL_Rect black_square;
+			black_square.w = SCREEN_WIDTH;
+			black_square.h = SCREEN_HEIGHT;
+			black_square.x = (SCREEN_WIDTH * 0.5) - (black_square.w * 0.5);
+			black_square.y = (SCREEN_HEIGHT * 0.5) - (black_square.h * 0.5);
+
+			App->renderer->DrawQuad(black_square, 0, 0, 0, 230, true, false);
+
+			App->fonts->BlitText(230, 100, 0, "GAME OVER", 6.0f);
+			App->fonts->BlitText(280, 600, 0, "Start Again", 2.0f);
+			App->fonts->BlitText(430, 602, 0, "[Enter]", 1.5f);
+			App->fonts->BlitText(280, 650, 0, "Exit", 2.0f);
+			App->fonts->BlitText(422, 652, 0, "[Escape]", 1.5f);
+
+			//your score
+			App->fonts->BlitText(300, 175, 0, "YOUR SCORE:", 2.0f);
+			App->fonts->BlitText(445, 175, 0, score_char, 2.0f);
+
+			//highscores
+			App->fonts->BlitText(285, 280, 0, "HIGSCORES", 3.5f);
+
+			//1
+			App->fonts->BlitText(250, 350, 0, "1. ", 2.5f);
+			App->fonts->BlitText(280, 350, 0, top1score_char, 2.5f);
+
+			//2
+			App->fonts->BlitText(250, 410, 0, "2. ", 2.5f);
+			App->fonts->BlitText(280, 410, 0, top2score_char, 2.5f);
+
+			//3
+			App->fonts->BlitText(250, 470, 0, "3. ", 2.5f);
+			App->fonts->BlitText(280, 470, 0, top3score_char, 2.5f);
+
+
+			alreadyfinished = true;
+			if (App->input->GetKey(SDL_SCANCODE_RETURN) == KEY_DOWN) {
+				Reset();
+			}
 		}
 	}
 
