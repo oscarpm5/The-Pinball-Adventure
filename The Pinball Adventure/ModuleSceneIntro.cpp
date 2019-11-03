@@ -371,8 +371,6 @@ bool ModuleSceneIntro::CleanUp()
 bool ModuleSceneIntro::Reset()
 {
 	App->audio->PlayFx(3, 0);
-	circles.add(App->physics->CreateCircle(508, 502, 10, true, -1, true));
-	circles.getLast()->data->listener = this;
 	
 	p2List_item<PhysBody*>* item = red_sensors.getFirst();
 	while (item != NULL)
@@ -480,12 +478,6 @@ update_status ModuleSceneIntro::Update()
 				circles.add(App->physics->CreateCircle(App->input->GetMouseX(), App->input->GetMouseY(), 10, true, -1, true));
 				circles.getLast()->data->listener = this;
 			}
-
-			if (App->input->GetKey(SDL_SCANCODE_2) == KEY_DOWN)
-			{
-				boxes.add(App->physics->CreateRectangle(App->input->GetMouseX(), App->input->GetMouseY(), 100, 50, true));
-			}
-
 
 			// Flippers' Motors Logic -------------------------------------
 
